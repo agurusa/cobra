@@ -1,31 +1,28 @@
 #include <FastLED.h>
+#include "driver/timer.h"
+#include "state_enum.h"
+#include "button.h"
 
-// used to indicate which button was pressed
-enum class ButtonType {
-  mode,
-  comms, 
-  none
-};
 
-// used to indicate how long a button was pressed
-enum class PressTime {
-  none,
-  longPress,
-  shortPress
-};
+const int TIMER_DIVIDER = 80; // hardware timer clock divider
+const int TIMER_SCALE = 10000;
+const int CHECK_MSEC= 5; // read hardware every 5 msec
+const int PRESS_MSEC =10; // stable time before registering pressed
+const int RELEASE_MSEC =100; // stable time before registering released
+const int LONG_PRESS_COUNT = 100; 
 
-struct Button{
-  const ButtonType type;
-  const int PIN;
-  bool wasPressed;
-  PressTime pressTime;
-};
+const timer_config_t config = {
+  .alarm_en = TIMER_ALARM_EN, //alarm enable
+  .counter_en = TIMER_PAUSE, // counter enable
+  .intr_type = TIMER_INTR_MAX, // interrupt type
+  .counter_dir = TIMER_COUNT_UP, // counter direction
+  .auto_reload = TIMER_AUTORELOAD_EN, // enable auto reload
+  .divider = TIMER_DIVIDER // counter clock divider
+}; //default clock source is APB
 
-enum class State{
-  music,
-  timer,
-  sync,
-};
+bool rawKeyPressed(int pin){
+  return digitalRead(pin) == LOW;
+}
 
 // debug
 template <typename Enumeration>
@@ -42,94 +39,138 @@ const int LED_PIN = 15;
 
 
 // initialize button pins as input. Use the internal pullup resistor.
-Button modeButton{ButtonType::mode, MODE_BUTTON_PIN, false};
-Button commsButton{ButtonType::comms, COMMS_BUTTON_PIN, false};
+debounce_struct_t modeDebounce{false,RELEASE_MSEC/CHECK_MSEC};
+Button modeButton{
+  .type = ButtonType::mode, 
+  .PIN = MODE_BUTTON_PIN, 
+  .isPressed = false, 
+  .wasPressed = false, 
+  .pressCount = 0, 
+  .debounce = modeDebounce
+};
+
+debounce_struct_t commsDebounce{false,RELEASE_MSEC/CHECK_MSEC};
+Button commsButton{
+  .type = ButtonType::comms, 
+  .PIN = COMMS_BUTTON_PIN, 
+  .isPressed = false, 
+  .wasPressed = false, 
+  .pressCount = 0, 
+  .debounce = commsDebounce
+};
+
 CRGB leds[NUM_LEDS];
 
-const int DEBOUNCE_TIME = 50; // ms
-const int LONG_PRESS_TIME = 1000; // ms
-unsigned long buttonPressTime = 0;
-unsigned long buttonReleaseTime = 0;
-unsigned long lastPressedTime = 0; // keeps track of how long a button has been pressed
-unsigned long lastReleaseTime = 0;
-unsigned long lastButtonChange = 0;
-int pressDelta = 0; // difference between the last pressed time and the current time 
-State state = State::music; //initialize to the music state
-PressTime pressTime = PressTime::shortPress; // to be passed to the pressButton functions
-
-
-// void IRAM_ATTR mode_isr(){
-//   // the first moment we read a button push
-//   if (millis() - lastPressedTime > DEBOUNCE_TIME)
-//   {
-//     if(digitalRead(MODE_BUTTON_PIN) == LOW){
-//       lastPressedTime = millis();
-//       Serial.println("button pin low");
-//     }
-//     else {
-//       if (millis() - lastPressedTime > LONG_PRESS_TIME){
-//         Serial.println("should be long press");
-//         modeButton.pressTime = PressTime::longPress;
-//       }
-//       else {
-//         Serial.println("should be short press");
-//         modeButton.pressTime = PressTime::shortPress;
-//       }
-//       modeButton.wasPressed = true;
-//       lastPressedTime = 0;
-//     }
-//   }
-// }
-int num = 0;
-void IRAM_ATTR mode_isr(){
-  if (millis() - lastButtonChange > DEBOUNCE_TIME)
-  {
-    lastButtonChange = millis();
-    if (digitalRead(modeButton.PIN) == LOW && !modeButton.wasPressed)
-    {
-      lastPressedTime = millis();
-      Serial.println("pressed");
-    }
-    else if (!modeButton.wasPressed){
-      Serial.println("Pressing now...");
-      modeButton.wasPressed = true;
-      // if (millis() - lastPressedTime > LONG_PRESS_TIME){
-      //   modeButton.pressTime = PressTime::longPress;
-      // }
-      // else {
-      //   modeButton.pressTime = PressTime::shortPress;
-      // }
-      // num ++;
-    }
-  }
-  // changes from high to low (pressed)
-  // changes from low to high (released)
-}
-
-
-void IRAM_ATTR comms_isr(){
-  if (digitalRead(COMMS_BUTTON_PIN) == LOW && lastPressedTime == 0) {
-    lastPressedTime = millis();
-  }
-  else if (millis() - lastPressedTime > DEBOUNCE_TIME && digitalRead(COMMS_BUTTON_PIN) == HIGH) {
-    commsButton.wasPressed = true;
-    lastPressedTime = 0;
-    if (millis() - lastPressedTime > LONG_PRESS_TIME) {
-      commsButton.pressTime = PressTime::longPress;
+void debounceButton(bool *key_changed, bool *key_pressed, Button *button)
+{
+  *key_changed = false;
+  *key_pressed = button->debounce.debouncedKeyPressed;
+  bool rawState = rawKeyPressed(button->PIN);
+  if (rawState == button->debounce.debouncedKeyPressed) {
+    // set the timer which allows a change from the current state
+    if (button->debounce.debouncedKeyPressed) {
+      button->debounce.count = RELEASE_MSEC/CHECK_MSEC;
     }
     else {
-      commsButton.pressTime = PressTime::shortPress;
+      button->debounce.count = PRESS_MSEC/CHECK_MSEC;
     }
   }
+  else {
+    // key changed- wait for state to become stable.
+    button->debounce.count--;
+    if(button->debounce.count == 0) {
+      // timer expired - accept the change
+      button->debounce.debouncedKeyPressed = rawState;
+      *key_changed = true;
+      *key_pressed = button->debounce.debouncedKeyPressed;
+      // reset the timer
+      if (button->debounce.debouncedKeyPressed) {
+      button->debounce.count = RELEASE_MSEC/CHECK_MSEC;
+      }
+      else {
+        button->debounce.count = PRESS_MSEC/CHECK_MSEC;
+      }
+    }
+  }
+}
+
+typedef struct {
+  bool comms_key_changed;
+  bool comms_key_pressed;
+  bool mode_key_changed;
+  bool mode_key_pressed;
+} timer_info_t;
+
+
+
+bool IRAM_ATTR timer_isr_callback(void *args)
+{
+  BaseType_t high_task_awoken = pdFALSE;
+
+  // prepare event data that is sent back to the task
+  uint64_t timer_counter_value;
+  timer_get_counter_value(TIMER_GROUP_0, TIMER_0, &timer_counter_value);
+  timer_info_t *info = (timer_info_t *) args;
+  debounceButton(&info->mode_key_changed, &info->mode_key_pressed, &modeButton);
+  debounceButton(&info->comms_key_changed, &info->comms_key_pressed, &commsButton);
+  modeButton.isPressed = info->mode_key_pressed;
+  commsButton.isPressed = info->comms_key_pressed;
+  if (info->mode_key_pressed){
+    buttonPressed(&modeButton);
+  }
+  else if (info->mode_key_changed)
+  {
+    buttonReleased(&modeButton);
+  }
+  if (info->comms_key_pressed){
+    buttonPressed(&commsButton);
+  }
+  else if (info->comms_key_changed) {
+    buttonReleased(&commsButton);
+  }
+  // send event dat aback to main program task
+  // xQueueSendFromISR(s_timer_queue, &evt, &high_task_awoken)
+  return high_task_awoken == pdTRUE;
+}
+
+void buttonReleased(Button *button)
+{
+  button->wasPressed = true;
+  if (button->pressCount > LONG_PRESS_COUNT)
+  {
+    button->pressTime = PressTime::longPress;
+  } 
+  else
+  {
+    button->pressTime = PressTime::shortPress;
+  }
+  button->isPressed = false;
+  button->pressCount = 0;
+  
+}
+
+void buttonPressed(Button *button)
+{
+  button->isPressed;
+  button->pressCount++;
 }
 
 void setup() {
   Serial.begin(115200); // for debugging
   FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, NUM_LEDS);
-  pinMode(MODE_BUTTON_PIN, INPUT_PULLUP);
-  pinMode(COMMS_BUTTON_PIN, INPUT_PULLUP);
-  attachInterrupt(MODE_BUTTON_PIN, mode_isr, CHANGE);
-  attachInterrupt(COMMS_BUTTON_PIN, comms_isr, CHANGE);
+
+  //initialize button pins
+  pinMode(modeButton.PIN, INPUT_PULLUP);
+  pinMode(commsButton.PIN, INPUT_PULLUP);
+
+  // initialize timer
+  timer_init(TIMER_GROUP_0 , TIMER_0, &config); // group, timer, configs
+  timer_set_counter_value(TIMER_GROUP_0, TIMER_0, 0); //initialize counter val to 0
+  timer_set_alarm_value(TIMER_GROUP_0, TIMER_0, TIMER_SCALE);
+  timer_info_t *timer_info = (timer_info_t*)calloc(1, sizeof(timer_info_t));
+  timer_isr_callback_add(TIMER_GROUP_0, TIMER_0, timer_isr_callback, timer_info, 0);
+  timer_start(TIMER_GROUP_0, TIMER_0);
+
 
 }
 
@@ -149,7 +190,7 @@ void pressModeButton(){
 void pressCommsButton(){
   // send out comms, depending on the current mode
   if (commsButton.pressTime == PressTime::longPress){
-    Serial.println("long press on comms mode button");
+    Serial.println("long press on comms button");
   }
   else
   {
@@ -157,57 +198,8 @@ void pressCommsButton(){
   }
 }
 
-// void pressButton() {
-//   pressDelta = millis() - lastPressedTime;
-//     // perform the action associated with the button press
-//     Button pressedButton = getButtonState();
-//     if (pressedButton != Button::none) {
-//       if (pressedButton != lastPressedButton){
-//         lastPressedTime = millis(); 
-//       }
-//     }
-//     else if (pressedButton == Button::none && lastPressedButton != Button::none) {
-//         if (pressDelta < LONG_PRESS_TIME){
-//           pressButton();
-//         }
-//         // This must be a long press. Run the long press for the previously pressed button.
-//         // reset the PressTime after recognizing that we just released a long press.
-//         else {
-//           pressButton();
-//           pressDelta = 0;
-//           lastPressedTime = 0;     
-//         }
-//       }
-//       lastPressedButton = pressedButton;
 
-  
-//   if (lastPressedButton == Button::mode) {
-//     pressModeButton(pressTime);    
-//   }
-//   else {
-//     pressCommsButton(pressTime);
-//   }
-// }
-
-// Button getButtonState()
-// {
-//   // returns the Button that is pressed. If no button is pressed, will return Button.none
-//   // note: we can't use isPressed() because that only relays the *change* between HIGH and LOW
-//   // states. 
-//   bool modeButtonPressed = digitalRead(MODE_BUTTON_PIN) == LOW;
-//   bool commsButtonPressed = digitalRead(COMMS_BUTTON_PIN) == LOW;
-//   if (modeButtonPressed) {
-//     return Button::mode;
-//   }
-//   else if (commsButtonPressed) {
-//     return Button::comms;
-//   }
-//   else {
-//     return Button::none;
-//   }
-// }
-
-
+State state = State::music; //initialize to the music state
 
 void fillBodyLeds(CRGB *leds, State state)
 // fill body LEDs with the correct color combo
@@ -241,6 +233,7 @@ int state_index = 0;
   void loop() {
     // this speeds up the simulation
     delay(500);
+    
     updateState(state, allStates[state_index]);
     if (state_index == (sizeof(allStates)/sizeof(allStates[0])) - 1){
       state_index = 0;
@@ -259,38 +252,7 @@ int state_index = 0;
     {
       pressCommsButton();
       commsButton.wasPressed=false;
-      modeButton.pressTime = PressTime::none;
+      commsButton.pressTime = PressTime::none;
     }
-
-
-
-    // necessary button setup for ezbutton library
-    // modeButton.loop();
-    // commsButton.loop();
-    // read the button state. 
-    // Button pressedButton = getButtonState();
-    // if a button is currently pressed, see how long that button has been pressed.
-    // if this is the first moment the button is pressed, start the clock.
-    // if (pressedButton != Button::none) {
-    //   if (pressedButton != lastPressedButton){
-    //     lastPressedTime = millis(); 
-    //   }
-    // }
-    // if no buttons are pressed now, but a button *was* pressed without signaling
-    // the long press time, consider this a short press of the previously pressed button.
-    // else if (pressedButton == Button::none && lastPressedButton != Button::none) {
-    //   pressDelta = millis() - lastPressedTime;
-    //   if (pressDelta < LONG_PRESS_TIME){
-    //     pressButton();
-    //   }
-    //   // This must be a long press. Run the long press for the previously pressed button.
-    //   // reset the PressTime after recognizing that we just released a long press.
-    //   else {
-    //     pressButton();
-    //     pressDelta = 0;
-    //     lastPressedTime = 0;     
-    //   }
-    // }
-    // lastPressedButton = pressedButton;
   
 }
