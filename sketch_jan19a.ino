@@ -59,6 +59,11 @@ Button commsButton{
   .debounce = commsDebounce
 };
 
+state_struct_t currentState {
+  .state_index = 0,
+  .state = AllStates[0],
+};
+
 CRGB leds[NUM_LEDS];
 
 void debounceButton(bool *key_changed, bool *key_pressed, Button *button)
@@ -182,8 +187,7 @@ void pressModeButton(){
     Serial.println("long press on press mode button: powering off/on");
   }
   else{
-  // change mode
-    Serial.println("short press on press mode button: changing mode");
+    updateState(currentState);
   }
 }
 
@@ -199,7 +203,6 @@ void pressCommsButton(){
 }
 
 
-State state = State::music; //initialize to the music state
 
 void fillBodyLeds(CRGB *leds, State state)
 // fill body LEDs with the correct color combo
@@ -222,26 +225,25 @@ void fillBodyLeds(CRGB *leds, State state)
   }
 }
 
-void updateState(State &state, State next_state)
+void updateState(state_struct_t &current_state)
 {
-  state = next_state;
+  // change mode
+  int next_index = current_state.state_index;
+  if (current_state.state_index == sizeof(AllStates)/sizeof(AllStates[0])){
+    next_index = 0;
+  }
+  else {
+    next_index++;
+  }
+  current_state.state_index = next_index;
+  current_state.state = AllStates[next_index];
 }
-
-State allStates[3] = {State::music, State::timer, State::sync};
-int state_index = 0;
 
   void loop() {
     // this speeds up the simulation
     delay(500);
-    
-    updateState(state, allStates[state_index]);
-    if (state_index == (sizeof(allStates)/sizeof(allStates[0])) - 1){
-      state_index = 0;
-    }
-    else {
-      state_index ++;
-    }
-    fillBodyLeds(leds, state);
+
+    fillBodyLeds(leds, currentState.state);
     FastLED.show();
     if (modeButton.wasPressed) {
       pressModeButton();
