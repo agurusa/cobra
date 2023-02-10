@@ -2,6 +2,7 @@
 
 #include "esp_ble_mesh_health_model_api.h"
 #include "esp_ble_mesh_config_model_api.h"
+#include "esp_ble_mesh_generic_model_api.h"
 
 //************* HEALTH SERVER MODEL *************//
 // mandatory: node diagnostics
@@ -38,10 +39,29 @@ static esp_ble_mesh_cfg_srv_t config_server = {
     .relay_retransmit = ESP_BLE_MESH_TRANSMIT(2, 20),
 };
 
+//************* GENERIC_ONOFF SERVER MODEL *************//
+// root model: supports pub/sub 
+// must support
+// rx: 
+// onoff get
+// onoff set
+// onoff set unacknoweldged
+// tx:
+// onoff status
+//***********************************************//
+// ONOFF SERVER model context
+ESP_BLE_MESH_MODEL_PUB_DEFINE(onoff_pub_0, 2 + 3, ROLE_NODE); 
+static esp_ble_mesh_gen_onoff_srv_t onoff_server_0 = {
+    .rsp_ctrl.get_auto_rsp = ESP_BLE_MESH_SERVER_AUTO_RSP, // response of Client Get messages will be replied by the server models
+    .rsp_ctrl.set_auto_rsp = ESP_BLE_MESH_SERVER_AUTO_RSP, // response of Client Set messages will be replied by the server models
+};
+
 static esp_ble_mesh_model_t root_models[] = {
     ESP_BLE_MESH_MODEL_CFG_SRV(&config_server),
     ESP_BLE_MESH_MODEL_HEALTH_SRV(&health_server, &health_pub),
+    ESP_BLE_MESH_MODEL_GEN_ONOFF_SRV(&onoff_pub_0, &onoff_server_0),
 };
+
 
 
 
