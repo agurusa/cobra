@@ -2,6 +2,8 @@
 
 #include "esp_ble_mesh_health_model_api.h"
 #include "esp_ble_mesh_config_model_api.h"
+#include "esp_ble_mesh_generic_model_api.h"
+
 
 //************* HEALTH SERVER MODEL *************//
 // mandatory: node diagnostics
@@ -38,9 +40,21 @@ static esp_ble_mesh_cfg_srv_t config_server = {
     .relay_retransmit = ESP_BLE_MESH_TRANSMIT(2, 20),
 };
 
+//************* GENERIC ONOFF CLIENT MODEL *************//
+// root node: receives status from member bracelets. 
+// transmits requests for get, set, and set unack of
+// the body LEDs.
+//***********************************************//
+// Generic OnOff Client Model Conext
+static esp_ble_mesh_client_t onoff_client;
+ESP_BLE_MESH_MODEL_PUB_DEFINE(onoff_cli_pub, 2 + 1, ROLE_NODE);
+
+
+
 static esp_ble_mesh_model_t root_models[] = {
     ESP_BLE_MESH_MODEL_CFG_SRV(&config_server),
     ESP_BLE_MESH_MODEL_HEALTH_SRV(&health_server, &health_pub),
+    ESP_BLE_MESH_MODEL_GEN_ONOFF_CLI(&onoff_cli_pub, &onoff_client),
 };
 
 
