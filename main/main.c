@@ -5,12 +5,13 @@
 #include "esp_ble_mesh_health_model_api.h"
 #include "esp_ble_mesh_config_model_api.h"
 #include "esp_ble_mesh_generic_model_api.h"
+#include "esp_ble_mesh_provisioning_api.h"
 
 const uint16_t GROUP_ADDR = 0xC000; /* Group Address assigned to all Group Members */
 const uint16_t NOT_VENDOR_MODEL = 0xFFF; /* See ESP-IDF API reference for company ID */
 nvs_handle_t NVS_HANDLE; /* Used to store app keys */
 const char * NVS_KEY = "onoff_client";
-static const char* TAG = "Gen_OnOff_Client"; /* logging*/
+const char* TAG = "Gen_OnOff_Client"; /* logging*/
 
 typedef struct {
     uint16_t net_idx; /* NetKey Index */
@@ -31,7 +32,7 @@ config_info_t config_info = {
 // ESP BLE Mesh Health Server Model Conext
 uint8_t test_ids[1] = {0x00};
 ESP_BLE_MESH_MODEL_PUB_DEFINE(health_pub, 2 + 11, ROLE_NODE);
-static esp_ble_mesh_health_srv_t health_server = {
+esp_ble_mesh_health_srv_t health_server = {
     .health_test.id_count = 1,
     .health_test.test_ids = test_ids,
 };
@@ -40,7 +41,7 @@ static esp_ble_mesh_health_srv_t health_server = {
 // mandatory: represents mesh network configurations of a device
 //***********************************************//
 // ESP BLE Configuration Server Model Conext
-static esp_ble_mesh_cfg_srv_t config_server = {
+esp_ble_mesh_cfg_srv_t config_server = {
     .relay = ESP_BLE_MESH_RELAY_ENABLED,
     .beacon = ESP_BLE_MESH_BEACON_ENABLED,
 #if defined(CONFIG_BLE_MESH_FRIEND)
@@ -66,11 +67,11 @@ static esp_ble_mesh_cfg_srv_t config_server = {
 // the body LEDs.
 //***********************************************//
 // Generic OnOff Client Model Conext
-static esp_ble_mesh_client_t onoff_client;
+esp_ble_mesh_client_t onoff_client;
 ESP_BLE_MESH_MODEL_PUB_DEFINE(onoff_cli_pub, 2 + 1, ROLE_NODE);
 
 
-static esp_ble_mesh_model_t root_models[] = {
+esp_ble_mesh_model_t root_models[] = {
     ESP_BLE_MESH_MODEL_CFG_SRV(&config_server),
     ESP_BLE_MESH_MODEL_HEALTH_SRV(&health_server, &health_pub),
     ESP_BLE_MESH_MODEL_GEN_ONOFF_CLI(&onoff_cli_pub, &onoff_client),
@@ -127,16 +128,64 @@ void send_gen_onoff_set(void) {
     // set.onoff_set.onoff = TODO
     // set.onoff_set.tid = TODO
 
-    err = esp_ble_mesh_generic_client_set_state(&common, &set);
-
-
-    
+    err = esp_ble_mesh_generic_client_set_state(&common, &set); 
 
 };
 
+// called when provisioning is complete
+void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32_t iv_index)
+{
+    ESP_LOGI(TAG, "provisioning complete");
+    config_info.net_idx = net_idx;
+    /* update_nvs_data() shall not be invoked here, because if the device
+     * is restarted and goes into a provisioned state, then the following events
+     * will come:
+     * 1st: ESP_BLE_MESH_NODE_PROV_COMPLETE_EVT
+     * 2nd: ESP_BLE_MESH_PROV_REGISTER_COMP_EVT
+     * So the store.net_idx will be updated here, and if we store the mesh example
+     * info here, the wrong app_idx (initialized with 0xFFFF) will be stored in nvs
+     * just before restoring it.
+     */
+}
+
+// callback method for provisioning events. 
+void provisioning_callback(esp_ble_mesh_prov_cb_event_t event,
+                                             esp_ble_mesh_prov_cb_param_t *param)
+{
+    switch (event) {
+    case ESP_BLE_MESH_PROV_REGISTER_COMP_EVT:
+        ESP_LOGI(TAG, "ESP_BLE_MESH_PROV_REGISTER_COMP_EVT, err_code %d", param->prov_register_comp.err_code);
+        update_nvs_data(); /* Restore proper mesh info */
+        break;
+    case ESP_BLE_MESH_NODE_PROV_ENABLE_COMP_EVT:
+        ESP_LOGI(TAG, "ESP_BLE_MESH_NODE_PROV_ENABLE_COMP_EVT, err_code %d", param->node_prov_enable_comp.err_code);
+        break;
+    case ESP_BLE_MESH_NODE_PROV_LINK_OPEN_EVT:
+        ESP_LOGI(TAG, "ESP_BLE_MESH_NODE_PROV_LINK_OPEN_EVT, bearer %s",
+            param->node_prov_link_open.bearer == ESP_BLE_MESH_PROV_ADV ? "PB-ADV" : "PB-GATT");
+        break;
+    case ESP_BLE_MESH_NODE_PROV_LINK_CLOSE_EVT:
+        ESP_LOGI(TAG, "ESP_BLE_MESH_NODE_PROV_LINK_CLOSE_EVT, bearer %s",
+            param->node_prov_link_close.bearer == ESP_BLE_MESH_PROV_ADV ? "PB-ADV" : "PB-GATT");
+        break;
+    case ESP_BLE_MESH_NODE_PROV_COMPLETE_EVT:
+        ESP_LOGI(TAG, "ESP_BLE_MESH_NODE_PROV_COMPLETE_EVT");
+        prov_complete(param->node_prov_complete.net_idx, param->node_prov_complete.addr,
+            param->node_prov_complete.flags, param->node_prov_complete.iv_index);
+        break;
+    case ESP_BLE_MESH_NODE_PROV_RESET_EVT:
+        break;
+    case ESP_BLE_MESH_NODE_SET_UNPROV_DEV_NAME_COMP_EVT:
+        ESP_LOGI(TAG, "ESP_BLE_MESH_NODE_SET_UNPROV_DEV_NAME_COMP_EVT, err_code %d", param->node_set_unprov_dev_name_comp.err_code);
+        break;
+    default:
+        break;
+    }
+}
+
 // callback method for when the configuration server receives configuration info
-// from the provisioning client.
-static void example_ble_mesh_config_server_cb(esp_ble_mesh_cfg_server_cb_event_t event,
+// from the configuration client.
+void config_server_callback(esp_ble_mesh_cfg_server_cb_event_t event,
                                               esp_ble_mesh_cfg_server_cb_param_t *param)
 {
     if (event == ESP_BLE_MESH_CFG_SERVER_STATE_CHANGE_EVT) {
