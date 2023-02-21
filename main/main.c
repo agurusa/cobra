@@ -2,6 +2,7 @@
 
 #include "nvs_flash.h"
 
+#include "esp_ble_mesh_common_api.h"
 #include "esp_ble_mesh_health_model_api.h"
 #include "esp_ble_mesh_config_model_api.h"
 #include "esp_ble_mesh_generic_model_api.h"
@@ -12,6 +13,8 @@ const uint16_t NOT_VENDOR_MODEL = 0xFFF; /* See ESP-IDF API reference for compan
 nvs_handle_t NVS_HANDLE; /* Used to store app keys */
 const char * NVS_KEY = "onoff_client";
 const char* TAG = "Gen_OnOff_Client"; /* logging*/
+uint8_t dev_uuid[16] = { 0xdd, 0xdd }; /* todo: generate randomly for each installation of application? */
+const uint16_t CID_ESPRESSIF = 0x02E5;
 
 typedef struct {
     uint16_t net_idx; /* NetKey Index */
@@ -23,6 +26,16 @@ config_info_t config_info = {
     .net_idx = ESP_BLE_MESH_KEY_UNUSED,
     .app_idx = ESP_BLE_MESH_KEY_UNUSED,
 };
+
+// struct holding provisioning info
+esp_ble_mesh_prov_t provision = {
+    .uuid = dev_uuid,
+    .output_size = 0,
+    .output_actions = ESP_BLE_MESH_NO_OUTPUT, /* output not supported by device. todo: maybe device should blink? ESP_BLE_MESH_BLINK */
+    .input_actions = ESP_BLE_MESH_NO_INPUT, /* input not supported by device. todo: maybe should push button on device? ESP_BLE_MESH_PUSH */
+    .input_size = 0,
+};
+
 
 
 
@@ -75,6 +88,19 @@ esp_ble_mesh_model_t root_models[] = {
     ESP_BLE_MESH_MODEL_CFG_SRV(&config_server),
     ESP_BLE_MESH_MODEL_HEALTH_SRV(&health_server, &health_pub),
     ESP_BLE_MESH_MODEL_GEN_ONOFF_CLI(&onoff_cli_pub, &onoff_client),
+};
+
+// todo
+// struct holding all elements
+esp_ble_mesh_elem_t elements[] = {
+
+};
+
+// struct holding composition data
+esp_ble_mesh_comp_t composition = {
+    .cid = CID_ESPRESSIF,
+    .element_count = sizeof(elements)/sizeof(elements[0]),
+    .elements = elements,
 };
 
 // stores networking info in flash Non Volatile Memory to save security keys even after power cycling
@@ -142,7 +168,7 @@ void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32_t iv_i
      * will come:
      * 1st: ESP_BLE_MESH_NODE_PROV_COMPLETE_EVT
      * 2nd: ESP_BLE_MESH_PROV_REGISTER_COMP_EVT
-     * So the store.net_idx will be updated here, and if we store the mesh example
+     * So the config_info.net_idx will be updated here, and if we store the mesh 
      * info here, the wrong app_idx (initialized with 0xFFFF) will be stored in nvs
      * just before restoring it.
      */
@@ -150,7 +176,7 @@ void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32_t iv_i
 
 // callback method for provisioning events. 
 void provisioning_callback(esp_ble_mesh_prov_cb_event_t event,
-                                             esp_ble_mesh_prov_cb_param_t *param)
+                           esp_ble_mesh_prov_cb_param_t *param)
 {
     switch (event) {
     case ESP_BLE_MESH_PROV_REGISTER_COMP_EVT:
@@ -186,7 +212,7 @@ void provisioning_callback(esp_ble_mesh_prov_cb_event_t event,
 // callback method for when the configuration server receives configuration info
 // from the configuration client.
 void config_server_callback(esp_ble_mesh_cfg_server_cb_event_t event,
-                                              esp_ble_mesh_cfg_server_cb_param_t *param)
+                            esp_ble_mesh_cfg_server_cb_param_t *param)
 {
     if (event == ESP_BLE_MESH_CFG_SERVER_STATE_CHANGE_EVT) {
         switch (param->ctx.recv_op) {
@@ -214,6 +240,15 @@ void config_server_callback(esp_ble_mesh_cfg_server_cb_event_t event,
             break;
         }
     }
+}
+
+esp_err_t ble_mesh_init() {
+    esp_err_t err = ESP_OK;
+
+    esp_ble_mesh_register_prov_callback(provisioning_callback);
+    err = esp_ble_mesh_init(&provision, &composition);
+    return err;
+
 }
 
 
