@@ -240,12 +240,14 @@ void config_server_callback(esp_ble_mesh_cfg_server_cb_event_t event,
             break;
         }
     }
-}
+};
+
 
 esp_err_t ble_mesh_init() {
     esp_err_t err = ESP_OK;
 
     esp_ble_mesh_register_prov_callback(provisioning_callback);
+    esp_ble_mesh_register_config_server_callback(config_server_callback);
     err = esp_ble_mesh_init(&provision, &composition);
     return err;
 
