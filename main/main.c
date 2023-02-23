@@ -95,10 +95,9 @@ esp_ble_mesh_model_t root_models[] = {
     ESP_BLE_MESH_MODEL_GEN_ONOFF_CLI(&onoff_cli_pub, &onoff_client),
 };
 
-// todo
 // struct holding all elements
 esp_ble_mesh_elem_t elements[] = {
-
+    ESP_BLE_MESH_ELEMENT(0, root_models, ESP_BLE_MESH_MODEL_NONE),
 };
 
 // struct holding composition data
