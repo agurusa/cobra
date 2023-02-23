@@ -16,6 +16,7 @@
 const uint16_t GROUP_ADDR = 0xC000; /* Group Address assigned to all Group Members */
 const uint16_t NOT_VENDOR_MODEL = 0xFFF; /* See ESP-IDF API reference for company ID */
 nvs_handle_t NVS_HANDLE; /* Used to store app keys */
+const char * NVS_NAME = "cobra";
 const char * NVS_KEY = "onoff_client";
 const char* TAG = "Gen_OnOff_Client"; /* logging*/
 uint8_t dev_uuid[16] = { 0xdd, 0xdd }; 
@@ -138,6 +139,25 @@ void update_nvs_data() {
     ble_mesh_nvs_store(NVS_HANDLE, NVS_KEY, &config_info, sizeof(config_info));
 }
 
+esp_err_t ble_mesh_nvs_open(nvs_handle_t *handle)
+{
+    esp_err_t err = ESP_OK;
+
+    if (handle == NULL) {
+        ESP_LOGE(TAG, "Open, invalid nvs handle");
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    err = nvs_open(NVS_NAME, NVS_READWRITE, handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Open, nvs_open failed, err %d", err);
+        return err;
+    }
+
+    ESP_LOGI(TAG, "Open namespace done, name \"%s\"", NVS_NAME);
+    return err;
+}
+
 // send set on off message. acknowledged.
 void send_gen_onoff_set(void) {
     esp_err_t err = ESP_OK;
@@ -257,6 +277,18 @@ esp_err_t ble_mesh_init() {
     esp_ble_mesh_register_prov_callback(provisioning_callback);
     esp_ble_mesh_register_config_server_callback(config_server_callback);
     err = esp_ble_mesh_init(&provision, &composition);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize ble mesh (err %d)", err);
+        return err;
+    }
+
+    err = esp_ble_mesh_node_prov_enable(ESP_BLE_MESH_PROV_ADV | ESP_BLE_MESH_PROV_GATT);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to enable mesh node (err %d)", err);
+        return err;
+    }
+
+    ESP_LOGI(TAG, "BLE Mesh Node initialized");
     return err;
 
 }
@@ -293,14 +325,21 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(err);
 
+        /* Open nvs namespace for storing/restoring mesh example info */
+    err = ble_mesh_nvs_open(&NVS_HANDLE);
+    if (err) {
+        ESP_LOGE(TAG, "nvs open failed (err %d)", err);
+        return;
+    }
+    ESP_ERROR_CHECK(err);
+
+
     err = ble_mesh_init();
     if (err) {
         ESP_LOGE(TAG, "ble mesh init failed (err %d)", err);
         return;
     }
     ESP_ERROR_CHECK(err);
-
-
 
 
 }
