@@ -1,6 +1,11 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "nvs_flash.h"
+
+#include "esp_bt.h"
+#include "esp_bt_main.h"
+#include "esp_bt_device.h"
 
 #include "esp_ble_mesh_common_api.h"
 #include "esp_ble_mesh_health_model_api.h"
@@ -11,9 +16,10 @@
 const uint16_t GROUP_ADDR = 0xC000; /* Group Address assigned to all Group Members */
 const uint16_t NOT_VENDOR_MODEL = 0xFFF; /* See ESP-IDF API reference for company ID */
 nvs_handle_t NVS_HANDLE; /* Used to store app keys */
+const char * NVS_NAME = "cobra";
 const char * NVS_KEY = "onoff_client";
 const char* TAG = "Gen_OnOff_Client"; /* logging*/
-uint8_t dev_uuid[16] = { 0xdd, 0xdd }; /* todo: generate randomly for each installation of application? */
+uint8_t dev_uuid[16] = { 0xdd, 0xdd }; 
 const uint16_t CID_ESPRESSIF = 0x02E5;
 
 typedef struct {
@@ -90,10 +96,9 @@ esp_ble_mesh_model_t root_models[] = {
     ESP_BLE_MESH_MODEL_GEN_ONOFF_CLI(&onoff_cli_pub, &onoff_client),
 };
 
-// todo
 // struct holding all elements
 esp_ble_mesh_elem_t elements[] = {
-
+    ESP_BLE_MESH_ELEMENT(0, root_models, ESP_BLE_MESH_MODEL_NONE),
 };
 
 // struct holding composition data
@@ -132,6 +137,25 @@ esp_err_t ble_mesh_nvs_store(nvs_handle_t handle, const char *key, const void *d
 
 void update_nvs_data() {
     ble_mesh_nvs_store(NVS_HANDLE, NVS_KEY, &config_info, sizeof(config_info));
+}
+
+esp_err_t ble_mesh_nvs_open(nvs_handle_t *handle)
+{
+    esp_err_t err = ESP_OK;
+
+    if (handle == NULL) {
+        ESP_LOGE(TAG, "Open, invalid nvs handle");
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    err = nvs_open(NVS_NAME, NVS_READWRITE, handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Open, nvs_open failed, err %d", err);
+        return err;
+    }
+
+    ESP_LOGI(TAG, "Open namespace done, name \"%s\"", NVS_NAME);
+    return err;
 }
 
 // send set on off message. acknowledged.
@@ -242,18 +266,47 @@ void config_server_callback(esp_ble_mesh_cfg_server_cb_event_t event,
     }
 };
 
-
+/***
+ * Initialize the board's UUID. 
+ * Setup callback methods for provisioning and configuration. 
+ * Initialize the BLE Mesh module.
+*/
 esp_err_t ble_mesh_init() {
     esp_err_t err = ESP_OK;
-
+    memcpy(dev_uuid + 2, esp_bt_dev_get_address(), 6);
     esp_ble_mesh_register_prov_callback(provisioning_callback);
     esp_ble_mesh_register_config_server_callback(config_server_callback);
     err = esp_ble_mesh_init(&provision, &composition);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to initialize ble mesh (err %d)", err);
+        return err;
+    }
+
+    err = esp_ble_mesh_node_prov_enable(ESP_BLE_MESH_PROV_ADV | ESP_BLE_MESH_PROV_GATT);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to enable mesh node (err %d)", err);
+        return err;
+    }
+
+    ESP_LOGI(TAG, "BLE Mesh Node initialized");
     return err;
 
 }
 
-
+/***
+ * Initialize and enable the BT controller and bluedroid stack.
+ * The BT controller implements the Host Controller Interface (HCI) on the controller side, the Link Layer (LL) and the Physical Layer (PHY). The BT Controller is invisible to the user applications and deals with the lower layers of the BLE stack. The controller configuration includes setting the BT controller stack size, priority and HCI baud rate. 
+*/
+esp_err_t bluetooth_init() {
+    esp_err_t err = ESP_OK;
+    esp_bt_controller_config_t config = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+    err = esp_bt_controller_init(&config);
+    err = esp_bt_controller_enable(ESP_BT_MODE_BLE);
+    // initialize and enable the bluedroid stack, which includes the common definitions and APIs for both BT Classic and BLE
+    err = esp_bluedroid_init();
+    err = esp_bluedroid_enable();
+    return err;
+};
 
 void app_main(void)
 {
@@ -262,6 +315,29 @@ void app_main(void)
     if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         err = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(err);
+
+    err = bluetooth_init();
+    if (err) {
+        ESP_LOGE(TAG, "esp32_bluetooth_init failed (err %d)", err);
+        return;
+    }
+    ESP_ERROR_CHECK(err);
+
+        /* Open nvs namespace for storing/restoring mesh example info */
+    err = ble_mesh_nvs_open(&NVS_HANDLE);
+    if (err) {
+        ESP_LOGE(TAG, "nvs open failed (err %d)", err);
+        return;
+    }
+    ESP_ERROR_CHECK(err);
+
+
+    err = ble_mesh_init();
+    if (err) {
+        ESP_LOGE(TAG, "ble mesh init failed (err %d)", err);
+        return;
     }
     ESP_ERROR_CHECK(err);
 
