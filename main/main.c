@@ -5,14 +5,15 @@
 
 #include "esp_ble_mesh_common_api.h"
 
-#include "config_server.c"
 #include "nvs.c"
-#include "provisioning.c"
 #include "health_server.c"
 #include "bluetooth.c"
+#include "config_server.c"
 #include "generic_onoff_client_model.c"
+#include "generic_onoff_server_model.c"
 
 const char* TAG = "APP"; 
+const uint16_t NO_DESCRIPTOR = 0; /* used for the Loc field in elements*/
 
 
 esp_ble_mesh_model_t root_models[] = {
@@ -21,9 +22,14 @@ esp_ble_mesh_model_t root_models[] = {
     ESP_BLE_MESH_MODEL_GEN_ONOFF_CLI(&onoff_cli_pub, &onoff_client),
 };
 
+esp_ble_mesh_model_t secondary_models[] = {
+    ESP_BLE_MESH_MODEL_GEN_ONOFF_SRV(&onoff_serv_pub, &onoff_server),
+};
+
 // struct holding all elements
 esp_ble_mesh_elem_t elements[] = {
-    ESP_BLE_MESH_ELEMENT(0, root_models, ESP_BLE_MESH_MODEL_NONE),
+    ESP_BLE_MESH_ELEMENT(NO_DESCRIPTOR, root_models, ESP_BLE_MESH_MODEL_NONE),
+    ESP_BLE_MESH_ELEMENT(NO_DESCRIPTOR, secondary_models, ESP_BLE_MESH_MODEL_NONE),
 };
 
 

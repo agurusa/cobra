@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _CONFIG_SERVER_GUARD
+#define _CONFIG_SERVER_GUARD
+
 #include "esp_ble_mesh_config_model_api.h"
 #include "config_struct.h"
 #include "nvs.c"
@@ -69,3 +71,5 @@ void config_server_callback(esp_ble_mesh_cfg_server_cb_event_t event,
         }
     }
 };
+
+#endif
