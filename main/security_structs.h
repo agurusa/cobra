@@ -1,5 +1,9 @@
 #pragma once
 
+#include <stdint.h>
+
+#include "esp_ble_mesh_defs.h"
+
 const uint16_t CID_ESPRESSIF = 0x02E5;
 uint8_t dev_uuid[16] = { 0xdd, 0xdd };
 

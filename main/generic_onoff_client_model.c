@@ -3,7 +3,7 @@
 #include "esp_ble_mesh_generic_model_api.h"
 
 
-const uint16_t GROUP_ADDR = 0xC000; /* Group Address assigned to all Group Members */
+const uint16_t GROUP_ADDR = 0xC000; /* TODO: get this from the configuration client. Group Address assigned to all Group Members */
 const char* GEN_ONOFF_TAG = "Gen_OnOff_Client"; /* logging*/
 
 //************* GENERIC ONOFF CLIENT MODEL *************//

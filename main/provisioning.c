@@ -1,6 +1,5 @@
-#pragma once 
-#include "esp_ble_mesh_provisioning_api.h"
 #include "security_structs.h"
+#include "config_server.c"
 
 
 const char * PROV_TAG = "PROVISIONING";

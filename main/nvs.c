@@ -1,6 +1,9 @@
 #pragma once
-#include "config_struct.h"
+
+#include "esp_log.h"
 #include "nvs_flash.h"
+
+#include "config_struct.h"
 
 nvs_handle_t NVS_HANDLE; /* Used to store app keys */
 const char * NVS_NAME = "cobra";
