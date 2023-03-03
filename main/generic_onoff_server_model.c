@@ -1,3 +1,5 @@
+#ifndef _ONOFF_SERVER_GUARD
+#define _ONOFF_SERVER_GUARD
 #include "esp_ble_mesh_generic_model_api.h"
 
 const char* GEN_ONOFF_SERVER_TAG = "Gen_OnOff_Server"; /* logging*/
@@ -79,3 +81,5 @@ void generic_onff_server_cb (esp_ble_mesh_generic_server_cb_event_t event,
     }
 
 }
+
+#endif
