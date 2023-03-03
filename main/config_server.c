@@ -44,6 +44,7 @@ esp_ble_mesh_cfg_srv_t config_server = {
 void config_server_callback(esp_ble_mesh_cfg_server_cb_event_t event,
                             esp_ble_mesh_cfg_server_cb_param_t *param)
 {
+    ESP_LOGI(SERVER_TAG,"hitting the config server callback");
     if (event == ESP_BLE_MESH_CFG_SERVER_STATE_CHANGE_EVT) {
         switch (param->ctx.recv_op) {
         case ESP_BLE_MESH_MODEL_OP_APP_KEY_ADD:
