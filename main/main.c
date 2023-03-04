@@ -4,7 +4,9 @@
 #include "nvs_flash.h"
 
 #include "esp_ble_mesh_common_api.h"
+#include "esp_timer.h"
 
+#include "periodic_timer.c"
 #include "nvs.c"
 #include "health_server.c"
 #include "bluetooth.c"
@@ -12,7 +14,7 @@
 #include "generic_onoff_client_model.c"
 #include "generic_onoff_server_model.c"
 
-const char* TAG = "APP"; 
+const char * TAG = "APP"; 
 const uint16_t NO_DESCRIPTOR = 0; /* used for the Loc field in elements*/
 
 
@@ -34,8 +36,24 @@ esp_ble_mesh_elem_t elements[] = {
 
 
 void app_main(void)
-{
+{   
+    
     esp_err_t err = ESP_OK;
+
+    timer_info_t *timer_info = (timer_info_t*)calloc(1, sizeof(timer_info_t));
+    
+    const esp_timer_create_args_t periodic_timer_args = {
+    .callback = timer_isr_callback,
+    .arg = &timer_info,
+    .name = "periodic_button"
+    };
+
+    esp_timer_handle_t periodic_timer;
+    err = esp_timer_create(&periodic_timer_args, &periodic_timer);
+    ESP_ERROR_CHECK(err);
+    err = esp_timer_start_periodic(periodic_timer, PERIOD_MS);
+    ESP_ERROR_CHECK(err);
+
     err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
         ESP_ERROR_CHECK(nvs_flash_erase());
