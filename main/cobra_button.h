@@ -6,7 +6,7 @@ const char * BUTTON_TAG = "BUTTON";
 
 const int PRESS_MSEC =10; // stable time before registering pressed
 const int RELEASE_MSEC =100; // stable time before registering released
-const int LONG_PRESS_COUNT = 100; 
+const int LONG_PRESS_COUNT = 20000; 
 
 bool rawKeyPressed(int pin){
   return gpio_get_level(pin) == 0;

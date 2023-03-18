@@ -49,7 +49,6 @@ void debounceButton(bool *key_changed, bool *key_pressed, Button *button)
   *key_changed = false;
   *key_pressed = button->debounce.debouncedKeyPressed;
   bool rawState = rawKeyPressed(button->PIN);
-//   ESP_LOGE(TIMER_TAG, "%s", rawState? "pressed":"not");
   if (rawState == button->debounce.debouncedKeyPressed) {
     // set the timer which allows a change from the current state
     if (button->debounce.debouncedKeyPressed) {
