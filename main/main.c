@@ -6,6 +6,7 @@
 #include "esp_ble_mesh_common_api.h"
 #include "esp_timer.h"
 
+#include "cobra_button.h"
 #include "periodic_timer.c"
 #include "nvs.c"
 #include "health_server.c"
@@ -13,6 +14,8 @@
 #include "config_server.c"
 #include "generic_onoff_client_model.c"
 #include "generic_onoff_server_model.c"
+
+#define STACK_SIZE  2048
 
 const char * TAG = "APP"; 
 const uint16_t NO_DESCRIPTOR = 0; /* used for the Loc field in elements*/
@@ -41,7 +44,7 @@ void app_main(void)
     esp_err_t err = ESP_OK;
 
     timer_info_t *timer_info = (timer_info_t*)calloc(1, sizeof(timer_info_t));
-    
+
     const esp_timer_create_args_t periodic_timer_args = {
     .callback = timer_isr_callback,
     .arg = &timer_info,
@@ -51,6 +54,12 @@ void app_main(void)
     esp_timer_handle_t periodic_timer;
     err = esp_timer_create(&periodic_timer_args, &periodic_timer);
     ESP_ERROR_CHECK(err);
+
+
+    err = button_setup(COMMS_BUTTON_PIN);
+    err = button_setup(MODE_BUTTON_PIN);
+    ESP_ERROR_CHECK(err);
+
     err = esp_timer_start_periodic(periodic_timer, PERIOD_MS);
     ESP_ERROR_CHECK(err);
 
@@ -68,7 +77,7 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(err);
 
-        /* Open nvs namespace for storing/restoring mesh example info */
+    /* Open nvs namespace for storing/restoring mesh example info */
     err = ble_mesh_nvs_open(&NVS_HANDLE);
     if (err) {
         ESP_LOGE(TAG, "nvs open failed (err %d)", err);
@@ -84,5 +93,8 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(err);
 
-
+    /* Start background task that checks the state of the buttons */
+    static uint8_t ucParameterToPass;
+    TaskHandle_t xHandle = NULL;
+    xTaskCreate(check_buttons, "CHECK_BUTTON_TASK", STACK_SIZE, &ucParameterToPass, tskIDLE_PRIORITY, &xHandle);
 }
