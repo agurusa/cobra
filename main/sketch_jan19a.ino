@@ -32,8 +32,6 @@ auto as_integer(Enumeration const value)
     return static_cast<typename std::underlying_type<Enumeration>::type>(value);
 }
 
-const int MODE_BUTTON_PIN = 23;
-const int COMMS_BUTTON_PIN = 22;
 const int NUM_LEDS= 30;
 const int LED_PIN = 15;
 
