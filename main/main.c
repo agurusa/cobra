@@ -7,6 +7,7 @@
 #include "esp_timer.h"
 
 #include "cobra_button.h"
+#include "cobra_leds.c"
 #include "periodic_timer.c"
 #include "nvs.c"
 #include "health_server.c"
@@ -14,6 +15,7 @@
 #include "config_server.c"
 #include "generic_onoff_client_model.c"
 #include "generic_onoff_server_model.c"
+
 
 #define STACK_SIZE  2048
 
@@ -59,6 +61,8 @@ void app_main(void)
     err = button_setup(COMMS_BUTTON_PIN);
     err = button_setup(MODE_BUTTON_PIN);
     ESP_ERROR_CHECK(err);
+
+    err = setupBodyLeds();
 
     err = esp_timer_start_periodic(periodic_timer, PERIOD_MS);
     ESP_ERROR_CHECK(err);
