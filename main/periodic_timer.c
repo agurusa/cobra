@@ -7,6 +7,8 @@
 #include "freertos/task.h"
 
 #include "cobra_button.h"
+#include "cobra_leds.c"
+#include "state_enum.h"
 
 const uint64_t PERIOD_MS = 5; /*read hardware every 5 ms*/
 const char * TIMER_TAG = "TIMER";
@@ -101,7 +103,16 @@ void timer_isr_callback(void *args)
 
 void pressModeButton()
 {
-    ESP_LOGE(TIMER_TAG, "mode button pressed: %s", modeButton.pressTime == press_time_long ? "long": "short");
+    esp_err_t err = ESP_OK;
+    if (modeButton.pressTime == press_time_long)
+    {
+        err = fillBodyLeds(state_music);
+    }
+    else 
+    {
+        err = fillBodyLeds(state_timer);
+    }
+
 }
 
 void pressCommsButton()
@@ -109,6 +120,7 @@ void pressCommsButton()
     ESP_LOGE(TIMER_TAG, "comms button pressed: %s", commsButton.pressTime == press_time_long ? "long": "short");
     
 }
+
 
 void check_buttons(void *pvParameters)
 {
