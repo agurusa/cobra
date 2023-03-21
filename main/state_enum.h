@@ -1,12 +1,13 @@
-enum class State{
-  music,
-  timer,
-  sync,
-};
+#pragma once
+typedef enum {
+  state_music,
+  state_timer,
+  state_sync,
+}cobra_state_t;
 
-State AllStates[3] = {State::music, State::timer, State::sync};
+cobra_state_t AllStates[3] = {state_music, state_timer, state_sync};
 
 typedef struct {
   int state_index;
-  State state;
-}state_struct_t;
+  cobra_state_t state;
+}cobra_state_struct;

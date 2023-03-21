@@ -6,7 +6,6 @@
 #include "esp_ble_mesh_common_api.h"
 #include "esp_timer.h"
 
-
 #include "cobra_button.h"
 #include "periodic_timer.c"
 #include "nvs.c"

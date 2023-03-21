@@ -7,6 +7,7 @@
 #include "freertos/task.h"
 
 #include "cobra_button.h"
+#include "cobra_leds.c"
 
 const uint64_t PERIOD_MS = 5; /*read hardware every 5 ms*/
 const char * TIMER_TAG = "TIMER";
