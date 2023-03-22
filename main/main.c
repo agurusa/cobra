@@ -6,6 +6,8 @@
 #include "esp_ble_mesh_common_api.h"
 #include "esp_timer.h"
 
+#include "state_enum.h"
+#include "state_updater.c"
 #include "cobra_button.h"
 #include "cobra_leds.c"
 #include "periodic_timer.c"
@@ -16,11 +18,11 @@
 #include "generic_onoff_client_model.c"
 #include "generic_onoff_server_model.c"
 
-
 #define STACK_SIZE  2048
 
 const char * TAG = "APP"; 
 const uint16_t NO_DESCRIPTOR = 0; /* used for the Loc field in elements*/
+
 
 
 esp_ble_mesh_model_t root_models[] = {
@@ -45,6 +47,7 @@ void app_main(void)
     
     esp_err_t err = ESP_OK;
 
+    /* BUTTON TIMER */
     timer_info_t *timer_info = (timer_info_t*)calloc(1, sizeof(timer_info_t));
 
     const esp_timer_create_args_t periodic_timer_args = {
@@ -57,16 +60,32 @@ void app_main(void)
     err = esp_timer_create(&periodic_timer_args, &periodic_timer);
     ESP_ERROR_CHECK(err);
 
+    /* STATE TIMER */
+    cobra_state_struct_t *state_info = (cobra_state_struct_t*)calloc(1, sizeof(cobra_state_struct_t)); /*currently used*/
 
+    const esp_timer_create_args_t state_timer_args = {
+        .callback = state_isr_callback,
+        .arg = &state_info,
+        .name = "state_timer"
+    };
+
+    esp_timer_handle_t state_timer;
+    err = esp_timer_create(&state_timer_args, &state_timer);
+    ESP_ERROR_CHECK(err);
+
+
+    /* HARDWARE SETUP */
     err = button_setup(COMMS_BUTTON_PIN);
     err = button_setup(MODE_BUTTON_PIN);
     ESP_ERROR_CHECK(err);
-
     err = setupBodyLeds();
 
+    /* START TIMERS */
     err = esp_timer_start_periodic(periodic_timer, PERIOD_MS);
+    err = esp_timer_start_periodic(state_timer, PERIOD_MS);
     ESP_ERROR_CHECK(err);
 
+    /* START NVS */
     err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
         ESP_ERROR_CHECK(nvs_flash_erase());
@@ -74,6 +93,7 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(err);
 
+    /* BLUETOOTH AND BLE SETUP*/
     err = bluetooth_init();
     if (err) {
         ESP_LOGE(TAG, "esp32_bluetooth_init failed (err %d)", err);
@@ -97,8 +117,15 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(err);
 
+
     /* Start background task that checks the state of the buttons */
     static uint8_t ucParameterToPass;
     TaskHandle_t xHandle = NULL;
     xTaskCreate(check_buttons, "CHECK_BUTTON_TASK", STACK_SIZE, &ucParameterToPass, tskIDLE_PRIORITY, &xHandle);
+
+    /* Start a background task to respond to a state change */
+    TaskHandle_t state_update_handle = NULL;
+    xTaskCreate(respond_to_state_change, "STATE_CHANGE_TASK", STACK_SIZE, &cobra_state, tskIDLE_PRIORITY, &state_update_handle);
+
+    
 }

@@ -2,6 +2,7 @@
 #define _COBRA_LEDS_GUARD
 
 #include "esp_err.h"
+#include "driver/gpio.h"
 #include "led_strip.h"
 
 #include "state_enum.h"
@@ -13,6 +14,7 @@ led_strip_handle_t led_strip;
 const int NUM_LEDS = 30;
 const int LED_GPIO = GPIO_NUM_8;
 const int COMMS_LED_INDEX = 0;
+const int STARTUP_LED_INDEX = 0;
 
 led_strip_config_t strip_config = {
     .strip_gpio_num = LED_GPIO,
@@ -52,6 +54,9 @@ esp_err_t fillBodyLeds(cobra_state_t state)
         case state_sync:
             // fill_gradient(leds, NUM_LEDS, CHSV(starthue,255,255), CHSV(endhue,255,255), FORWARD_HUES);
             break;
+        case state_startup:
+            err = led_strip_set_pixel(led_strip, STARTUP_LED_INDEX, 10, 255, 255);
+
         default:
             // fill_solid(leds, NUM_LEDS, CRGB::White);
             break;
