@@ -12,6 +12,7 @@ led_strip_handle_t led_strip;
 
 const int NUM_LEDS = 30;
 const int LED_GPIO = GPIO_NUM_8;
+const int COMMS_LED_INDEX = 0;
 
 led_strip_config_t strip_config = {
     .strip_gpio_num = LED_GPIO,
@@ -42,11 +43,11 @@ esp_err_t fillBodyLeds(cobra_state_t state)
     switch (state) {
         case state_music:
             // fill_rainbow(leds, NUM_LEDS, CRGB::CRGB::BlueViolet);
-            err = led_strip_set_pixel(led_strip, 0, 255,255,255);
+            err = led_strip_set_pixel(led_strip, COMMS_LED_INDEX, 255,255,255);
             break;
         case state_timer:
             // fill_solid(leds, NUM_LEDS, CRGB::Red);
-            err = led_strip_set_pixel(led_strip, 0, 100, 255, 10);
+            err = led_strip_set_pixel(led_strip, COMMS_LED_INDEX, 100, 255, 10);
             break;
         case state_sync:
             // fill_gradient(leds, NUM_LEDS, CHSV(starthue,255,255), CHSV(endhue,255,255), FORWARD_HUES);
