@@ -79,10 +79,12 @@ void app_main(void)
     err = button_setup(MODE_BUTTON_PIN);
     ESP_ERROR_CHECK(err);
     err = setupBodyLeds();
+    /*debug only*/
+    err = setupBoardLed();
 
     /* START TIMERS */
     err = esp_timer_start_periodic(periodic_timer, PERIOD_MS);
-    err = esp_timer_start_periodic(state_timer, PERIOD_MS);
+    err = esp_timer_start_periodic(state_timer, PERIOD_MS*100000);
     ESP_ERROR_CHECK(err);
 
     /* START NVS */

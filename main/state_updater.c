@@ -3,6 +3,8 @@
 
 #include "state_enum.h"
 #include "cobra_leds.c"
+#include "cobra_roles.h"
+#include "periodic_timer.c"
 
 /* Updates the state machine */
 
@@ -10,8 +12,10 @@ const char * STATE_TAG = "STATE";
 
 cobra_state_struct_t cobra_state = {
     .current_state = state_startup,
-    .next_state = state_startup
+    .next_state = state_startup,
+    .group_role = role_owner,
 };
+
 
 void update_state(cobra_state_struct_t *cobra_state)
 {
@@ -23,7 +27,11 @@ void update_state(cobra_state_struct_t *cobra_state)
     }
     else if (current_state == state_music)
     {
-        next_state = state_startup;
+        next_state = state_timer;
+    }
+    else if (current_state == state_timer)
+    {
+        next_state = state_music;
     }
     else 
     {
@@ -50,13 +58,13 @@ void respond_to_state_change(void * args)
             // device responds to state change
             switch (next_state){
                 case state_startup: 
-                    fillBodyLeds(next_state);
+                    fillBodyLeds(next_state, board_led);
                     break;
                 case state_timer:
-                    fillBodyLeds(next_state);
+                    fillBodyLeds(next_state, board_led);
                     break;
                 case state_music:
-                    fillBodyLeds(next_state);
+                    fillBodyLeds(next_state, board_led);
                     break;
                 default:
                     break;

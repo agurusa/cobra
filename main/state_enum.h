@@ -1,4 +1,7 @@
 #pragma once
+
+#include "cobra_roles.h"
+
 typedef enum {
   state_startup,
   state_music,
@@ -13,4 +16,6 @@ typedef enum {
 typedef struct {
   cobra_state_t current_state;
   cobra_state_t next_state;
+  cobra_role_t group_role;
+
 }cobra_state_struct_t;

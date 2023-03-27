@@ -9,6 +9,7 @@
 #include "cobra_button.h"
 #include "cobra_leds.c"
 #include "state_enum.h"
+#include "cobra_queue.c"
 
 const uint64_t PERIOD_MS = 5; /*read hardware every 5 ms*/
 const char * TIMER_TAG = "TIMER";
@@ -103,22 +104,36 @@ void timer_isr_callback(void *args)
 
 void pressModeButton()
 {
-    esp_err_t err = ESP_OK;
-    if (modeButton.pressTime == press_time_long)
-    {
-        err = fillBodyLeds(state_music);
-    }
-    else 
-    {
-        err = fillBodyLeds(state_timer);
-    }
+    cobra_process_t proc = modeButton.pressTime == press_time_long ? process_mode_button_press_long: process_mode_button_press_short;
+    cobra_process_info_t proc_info = {
+      .process = proc,
+      .priority = high
+    };
+    add_process(proc_info);
 
 }
 
 void pressCommsButton()
 {
-    ESP_LOGE(TIMER_TAG, "comms button pressed: %s", commsButton.pressTime == press_time_long ? "long": "short");
+    cobra_process_t proc = commsButton.pressTime == press_time_long ? process_comms_button_press_long : process_comms_button_press_short;
+    cobra_process_info_t proc_info = {
+      .process = proc,
+      .priority = high
+    };
+    add_process(proc_info);
     
+}
+
+/* TESTING ONLY (todo: move to official test)*/
+void test_process_queue(void *args)
+{
+  bool pressMode = false;
+  while(1)
+  {
+    pressMode ? pressModeButton(): pressCommsButton();
+    pressMode = !pressMode;
+  }
+
 }
 
 
