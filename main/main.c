@@ -23,8 +23,6 @@
 const char * TAG = "APP"; 
 const uint16_t NO_DESCRIPTOR = 0; /* used for the Loc field in elements*/
 
-
-
 esp_ble_mesh_model_t root_models[] = {
     ESP_BLE_MESH_MODEL_CFG_SRV(&config_server),
     ESP_BLE_MESH_MODEL_HEALTH_SRV(&health_server, &health_pub),
@@ -61,7 +59,13 @@ void app_main(void)
     ESP_ERROR_CHECK(err);
 
     /* STATE TIMER */
-    cobra_state_struct_t *state_info = (cobra_state_struct_t*)calloc(1, sizeof(cobra_state_struct_t)); /*currently used*/
+    cobra_state_struct_t cobra_state = {
+        .current_state = state_startup,
+        .next_state = state_startup,
+        .group_role = role_owner,
+        .current_mode = mode_music,
+    };
+    cobra_state_struct_t *state_info = &cobra_state;
 
     const esp_timer_create_args_t state_timer_args = {
         .callback = state_isr_callback,
@@ -127,7 +131,11 @@ void app_main(void)
 
     /* Start a background task to respond to a state change */
     TaskHandle_t state_update_handle = NULL;
-    xTaskCreate(respond_to_state_change, "STATE_CHANGE_TASK", STACK_SIZE, &cobra_state, tskIDLE_PRIORITY, &state_update_handle);
+    xTaskCreate(respond_to_state_change, "STATE_CHANGE_TASK", STACK_SIZE, &state_info, tskIDLE_PRIORITY, &state_update_handle);
+
+    /* Start a background task that processes nodes from the queue */
+    TaskHandle_t queue_handle = NULL;
+    xTaskCreate(pop_process, "PROCESS_QUEUE_TASK", STACK_SIZE, &state_info, tskIDLE_PRIORITY, &queue_handle);
 
     
 }

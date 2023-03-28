@@ -7,6 +7,7 @@
 
 #include "cobra_process.h"
 #include "cobra_errors.h"
+#include "mode_button.c"
 
 const char * QUEUE_TAG = "QUEUE";
 
@@ -44,7 +45,6 @@ void print_queue(){
 }
 
 // TODO: implement cobra errors that say whether or not the queue is full
-// TODO: make sure you're not bumping low priority processes off the queue
 void add_process(cobra_process_info_t info)
 {
     if (cobra_queue.size == cobra_queue.max_size)
@@ -71,12 +71,49 @@ void add_process(cobra_process_info_t info)
 
     }
     cobra_queue.size++;
-
     print_queue();
+}
 
+void process_node(cobra_process_node_t node, cobra_state_struct_t *cobra_state)
+{   
+    cobra_process_info_t process_info = node.info;
+    switch(process_info.process)
+    {
+        case process_mode_button_press_long:
+            break;
+        case process_mode_button_press_short:
+            press_mode_button_short(cobra_state);
+            break;
+        case process_comms_button_press_long:
+            break;
+        case process_comms_button_press_short:
+            break;
+        case process_alarm_went_off:
+            break;
+        case process_message_received:
+            break;
+        default:
+            break;
+    }
 
+}
 
-
+void pop_process(void *args)
+/* pop node off the queue for processing*/
+{
+    while(1) {
+        cobra_state_struct_t *cobra_state = (cobra_state_struct_t*) args;
+        cobra_process_node_t *node = cobra_queue.first;
+        if (node!=NULL) {
+            cobra_queue.first = node->next;
+            process_node(*node, cobra_state);
+            free(node);
+            cobra_queue.size--;
+            print_queue();
+        }
+        vTaskDelay(50/1000);
+    }
+    
 }
 
 

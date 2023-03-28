@@ -3,10 +3,19 @@
 #include "cobra_roles.h"
 
 typedef enum {
+  mode_music,
+  mode_timer,
+  mode_locator,
+  mode_comms,
+  num_of_modes
+}cobra_mode_t;
+
+typedef enum {
   state_startup,
+  state_sync,
   state_music,
   state_timer,
-  state_sync,
+  state_locator,
   state_group_owner_active,
   state_group_owner_passive,
   state_listener_passive,
@@ -14,6 +23,7 @@ typedef enum {
 }cobra_state_t;
 
 typedef struct {
+  cobra_mode_t current_mode;
   cobra_state_t current_state;
   cobra_state_t next_state;
   cobra_role_t group_role;

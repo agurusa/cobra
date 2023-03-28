@@ -10,6 +10,7 @@
 #include "cobra_leds.c"
 #include "state_enum.h"
 #include "cobra_queue.c"
+#include "state_updater.c"
 
 const uint64_t PERIOD_MS = 5; /*read hardware every 5 ms*/
 const char * TIMER_TAG = "TIMER";
@@ -137,7 +138,7 @@ void test_process_queue(void *args)
 }
 
 
-void check_buttons(void *pvParameters)
+void check_buttons(void *args)
 {
     while (1)
     {

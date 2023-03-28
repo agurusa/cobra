@@ -1,5 +1,6 @@
 #pragma once 
 
+#include "state_enum.h"
 
 typedef enum {
     process_none, /* special process for queuing*/
@@ -21,6 +22,8 @@ typedef enum{
 typedef struct {
     cobra_process_t process;
     cobra_priority_t priority;
+    cobra_state_struct_t cobra_state; /* TODO: get rid of this? */
+    
 }cobra_process_info_t;
 
 typedef struct cobra_process_node_t{
