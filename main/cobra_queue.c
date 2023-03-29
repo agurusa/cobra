@@ -8,6 +8,7 @@
 #include "cobra_process.h"
 #include "cobra_errors.h"
 #include "mode_button.c"
+#include "comms_button.c"
 
 const char * QUEUE_TAG = "QUEUE";
 
@@ -80,13 +81,16 @@ void process_node(cobra_process_node_t node, cobra_state_struct_t *cobra_state)
     switch(process_info.process)
     {
         case process_mode_button_press_long:
+            press_mode_button_long(cobra_state);
             break;
         case process_mode_button_press_short:
             press_mode_button_short(cobra_state);
             break;
         case process_comms_button_press_long:
+            press_comms_button_long(cobra_state);
             break;
         case process_comms_button_press_short:
+            press_comms_button_short(cobra_state);
             break;
         case process_alarm_went_off:
             break;

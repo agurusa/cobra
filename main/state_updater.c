@@ -25,11 +25,15 @@ void update_state(cobra_state_struct_t *cobra_state)
         case mode_comms:
             if (cobra_state->group_role == role_owner)
             {
+                /*if we're not waiting on anyone to respond, we should be in the passive state*/
                 next_state = state_group_owner_passive;
+                /*if we're waiting on folks to respond to a message, we should be in the active state*/
             }
             else
             {
+                /*if we don't need to respond to any messages, we should be in the passive state*/
                 next_state = state_listener_passive;
+                /*if there is a message to respond to, then we should be in the active state*/
             }
             break;
         case mode_locator:
