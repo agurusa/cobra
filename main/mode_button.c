@@ -20,4 +20,17 @@ void press_mode_button_short(cobra_state_struct_t *cobra_state)
     update_mode(&cobra_state->current_mode);
 }
 
+void press_mode_button_long(cobra_state_struct_t *cobra_state)
+{
+    switch(cobra_state->current_state)
+    {
+        case state_listener_active:
+            /*silence (refuse to acknowledge/snooze)*/
+            /*update state to passive*/
+            break;
+        default:
+            break;
+    }
+}
+
 #endif 

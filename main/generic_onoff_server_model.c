@@ -39,7 +39,7 @@ void handle_generic_onoff_set_unack(){
     ESP_LOGI(GEN_ONOFF_SERVER_TAG, "ONOFF SET UNACK");
 };
 
-void generic_onff_server_cb (esp_ble_mesh_generic_server_cb_event_t event,
+void generic_onoff_server_cb (esp_ble_mesh_generic_server_cb_event_t event,
                             esp_ble_mesh_generic_server_cb_param_t *param){
     esp_ble_mesh_gen_onoff_srv_t *srv;
     ESP_LOGI(GEN_ONOFF_SERVER_TAG, "event 0x%02x, opcode 0x%04x, src 0x%04x, dst 0x%04x",
