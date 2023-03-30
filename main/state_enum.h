@@ -19,7 +19,8 @@ typedef enum {
   state_group_owner_active,
   state_group_owner_passive,
   state_listener_passive,
-  state_listener_active
+  state_listener_active,
+  num_of_states
 }cobra_state_t;
 
 typedef struct {

@@ -23,6 +23,8 @@
 const char * TAG = "APP"; 
 const uint16_t NO_DESCRIPTOR = 0; /* used for the Loc field in elements*/
 
+const cobra_role_t COBRA_ROLE = role_owner; /*TODO: update this based on what is gathered by the app sync*/
+
 esp_ble_mesh_model_t root_models[] = {
     ESP_BLE_MESH_MODEL_CFG_SRV(&config_server),
     ESP_BLE_MESH_MODEL_HEALTH_SRV(&health_server, &health_pub),
@@ -62,7 +64,7 @@ void app_main(void)
     cobra_state_struct_t cobra_state = {
         .current_state = state_startup,
         .next_state = state_startup,
-        .group_role = role_owner,
+        .group_role = COBRA_ROLE,
         .current_mode = mode_music,
     };
     cobra_state_struct_t *state_info = &cobra_state;

@@ -13,7 +13,7 @@ const char * STATE_TAG = "STATE";
 void update_state(cobra_state_struct_t *cobra_state)
 {
     cobra_state_t current_state = (*cobra_state).current_state;
-    cobra_state_t next_state;
+    cobra_state_t next_state = current_state;
     switch(cobra_state->current_mode)
     {
         case mode_music:
@@ -59,6 +59,10 @@ void respond_to_state_change(void * args)
         cobra_state_struct_t * state =  (cobra_state_struct_t *) args;
         cobra_state_t current_state = (*state).current_state;
         cobra_state_t next_state = (*state).next_state;
+        /*todo: debug why this is happening*/
+        if (next_state >= num_of_states) {
+            next_state = current_state;
+        }
         if (current_state != next_state)
         {
             // device responds to state change

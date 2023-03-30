@@ -12,6 +12,7 @@
 #include "provisioning.c"
 #include "config_server.c"
 #include "generic_onoff_server_model.c"
+#include "generic_onoff_client_model.c"
 
 /***
  * Initialize the board's UUID. 
@@ -27,7 +28,8 @@ esp_err_t ble_mesh_init(esp_ble_mesh_elem_t *elements, size_t length_of_elements
     memcpy(dev_uuid + 2, esp_bt_dev_get_address(), 6);
     esp_ble_mesh_register_prov_callback(provisioning_callback);
     esp_ble_mesh_register_config_server_callback(config_server_callback);
-    esp_ble_mesh_register_generic_server_callback(generic_onff_server_cb);
+    esp_ble_mesh_register_generic_server_callback(generic_onoff_server_cb);
+    esp_ble_mesh_register_generic_client_callback(generic_onoff_client_cb);
     err = esp_ble_mesh_init(&provision, &composition);
     if (err != ESP_OK) {
         ESP_LOGE(BLUETOOTH_TAG, "Failed to initialize ble mesh (err %d)", err);

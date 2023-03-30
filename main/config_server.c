@@ -9,9 +9,10 @@ const uint16_t NOT_VENDOR_MODEL = 0xFFF; /* See ESP-IDF API reference for compan
 const char* SERVER_TAG = "CONFIG_SERVER"; /* logging*/
 
 // updated with app keys after provisioning/configurations
-config_info_t config_info = {
+static config_info_t config_info = {
     .net_idx = ESP_BLE_MESH_KEY_UNUSED,
     .app_idx = ESP_BLE_MESH_KEY_UNUSED,
+    .tid = 0,
 };
 
 
@@ -44,7 +45,6 @@ esp_ble_mesh_cfg_srv_t config_server = {
 void config_server_callback(esp_ble_mesh_cfg_server_cb_event_t event,
                             esp_ble_mesh_cfg_server_cb_param_t *param)
 {
-    ESP_LOGI(SERVER_TAG,"hitting the config server callback");
     if (event == ESP_BLE_MESH_CFG_SERVER_STATE_CHANGE_EVT) {
         switch (param->ctx.recv_op) {
         case ESP_BLE_MESH_MODEL_OP_APP_KEY_ADD:
@@ -61,8 +61,7 @@ void config_server_callback(esp_ble_mesh_cfg_server_cb_event_t event,
                 param->value.state_change.mod_app_bind.app_idx,
                 param->value.state_change.mod_app_bind.company_id,
                 param->value.state_change.mod_app_bind.model_id);
-            if (param->value.state_change.mod_app_bind.company_id == NOT_VENDOR_MODEL &&
-                param->value.state_change.mod_app_bind.model_id == ESP_BLE_MESH_MODEL_ID_GEN_ONOFF_CLI) {
+            if (param->value.state_change.mod_app_bind.company_id == NOT_VENDOR_MODEL){ 
                 config_info.app_idx = param->value.state_change.mod_app_bind.app_idx;
                 update_nvs_data(config_info); /* Store proper mesh example info */
             }
