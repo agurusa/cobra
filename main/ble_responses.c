@@ -10,7 +10,7 @@ const char* BLE_QUEUE = "MSG_QUEUE";
 static cobra_message_queue_t rxn_messages = {
     .first = NULL,
 };
-static bool group_owner_msg_received = false;
+static bool msg_received = false;
 
 
 bool empty()
@@ -67,6 +67,8 @@ void push_msg(cobra_bt_response_t *rsp)
 void process_msg()
 {
     cobra_bt_response_t *rsp = pop_msg();
+    msg_received = true;
+    /*changes to comms mode*/
     switch(rsp->response)
     {
         case message_acknowledged:
@@ -76,9 +78,6 @@ void process_msg()
         case message_snoozed:
             break;
         case message_group_owner:
-            /*changes to listener active state*/
-            group_owner_msg_received = true;
-            ESP_LOGE("BLE_RESPONSES", "message group owner rcv'd!");
             break;
         case message_location_requested:
             break;
