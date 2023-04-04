@@ -71,15 +71,19 @@ esp_err_t fillBodyLeds(cobra_state_t state, led_strip_handle_t strip)
 // fill body LEDs with the correct color combo
 {
     esp_err_t err = ESP_OK;
-    err = led_strip_set_pixel(strip, COMMS_LED_INDEX, state*10,state*10,state*20);
     switch (state) {
         case state_music:
+            err = led_strip_set_pixel(strip, COMMS_LED_INDEX, state*10,state*10,state*20);
             break;
         case state_timer:
+            err = led_strip_set_pixel(strip, COMMS_LED_INDEX, state*10,state*10,state*20);
             break;
         case state_sync:
+            err = led_strip_set_pixel(strip, COMMS_LED_INDEX, state*10,state*10,state*20);
             break;
         case state_startup:
+            err = led_strip_set_pixel(strip, COMMS_LED_INDEX, state*10,state*10,state*20);
+            break;
         default:
             break;
     }
