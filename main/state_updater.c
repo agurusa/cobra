@@ -13,7 +13,9 @@ const char * STATE_TAG = "STATE";
 void update_state(cobra_state_struct_t *cobra_state)
 {
     cobra_state_t current_state = (*cobra_state).current_state;
+    cobra_mode_t current_mode = (*cobra_state).current_mode;
     cobra_state_t next_state = current_state;
+    (*cobra_state).current_mode = msg_received? mode_comms : current_mode; 
     switch(cobra_state->current_mode)
     {
         case mode_music:
@@ -32,8 +34,8 @@ void update_state(cobra_state_struct_t *cobra_state)
             else
             {
                 /*if we don't need to respond to any messages, we should be in the passive state*/
-                next_state = state_listener_passive;
                 /*if there is a message to respond to, then we should be in the active state*/
+                next_state = (msg_received) ? state_listener_active : state_listener_passive;
             }
             break;
         case mode_locator:
@@ -49,8 +51,8 @@ void update_state(cobra_state_struct_t *cobra_state)
 // see if there is a need for a state change.
 // if there is, then change the .next_state for background task processing.
 void state_isr_callback(void * args) {
-    cobra_state_struct_t *cobra_state = (cobra_state_struct_t*) args;
-    update_state(cobra_state);
+    cobra_state_struct_t *state = (cobra_state_struct_t*) args;
+    update_state(state);
 }
 
 void respond_to_state_change(void * args)

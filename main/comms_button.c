@@ -2,6 +2,9 @@
 #define _COMMS_BUTTON_GUARD
 
 #include "generic_onoff_client_model.c"
+#include "static_members.c"
+
+const char * COMMS_TAG = "COMMS";
 
 
 void press_comms_button_long(cobra_state_struct_t *cobra_state)
@@ -25,14 +28,15 @@ void press_comms_button_short(cobra_state_struct_t *cobra_state)
             /*send out message to all group listeners*/
             /*generic_onoff_client model set tx*/
             send_gen_onoff_set();
-            /*update state to active*/
-
+            /*state updated to active on ESP_BLE_MESH_GENERIC_CLIENT_PUBLISH_EVT*/
             break;
         case state_listener_active:
             /*generic_onoff_server model set rx event would have put us in this state*/
             /*acknowledge*/
+            ESP_LOGE(COMMS_TAG, "acknowleding");
             /*light_hsl_client model set tx*/
             /*update state to passive*/
+            msg_received = false;
             break;
         default:
             break;

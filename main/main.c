@@ -17,13 +17,12 @@
 #include "config_server.c"
 #include "generic_onoff_client_model.c"
 #include "generic_onoff_server_model.c"
+#include "static_members.c"
 
-#define STACK_SIZE  2048
+#define COBRA_ROLE role_listener /*TODO: update this based on what is gathered by the app sync*/
 
 const char * TAG = "APP"; 
 const uint16_t NO_DESCRIPTOR = 0; /* used for the Loc field in elements*/
-
-const cobra_role_t COBRA_ROLE = role_owner; /*TODO: update this based on what is gathered by the app sync*/
 
 esp_ble_mesh_model_t root_models[] = {
     ESP_BLE_MESH_MODEL_CFG_SRV(&config_server),
@@ -41,6 +40,18 @@ esp_ble_mesh_elem_t elements[] = {
     ESP_BLE_MESH_ELEMENT(NO_DESCRIPTOR, secondary_models, ESP_BLE_MESH_MODEL_NONE),
 };
 
+void set_initial_state(cobra_state_struct_t *state)
+{
+    (*state).current_state = state_startup;
+    (*state).next_state = state_startup;
+    (*state).group_role = COBRA_ROLE;
+    (*state).current_mode = mode_music;
+};
+
+void print_state(cobra_state_struct_t *state)
+{
+    ESP_LOGE(TAG, "current state: %i, next state: %i, role %i, current mode %i", (*state).current_state, (*state).next_state, (*state).group_role, (*state).current_mode);
+}
 
 void app_main(void)
 {   
@@ -61,17 +72,13 @@ void app_main(void)
     ESP_ERROR_CHECK(err);
 
     /* STATE TIMER */
-    cobra_state_struct_t cobra_state = {
-        .current_state = state_startup,
-        .next_state = state_startup,
-        .group_role = COBRA_ROLE,
-        .current_mode = mode_music,
-    };
-    cobra_state_struct_t *state_info = &cobra_state;
+    cobra_state_struct_t *cobra_state = calloc(1, sizeof(cobra_state_struct_t));
+    set_initial_state(cobra_state);
+    print_state(cobra_state);
 
     const esp_timer_create_args_t state_timer_args = {
         .callback = state_isr_callback,
-        .arg = &state_info,
+        .arg = cobra_state,
         .name = "state_timer"
     };
 
@@ -133,11 +140,10 @@ void app_main(void)
 
     /* Start a background task to respond to a state change */
     TaskHandle_t state_update_handle = NULL;
-    xTaskCreate(respond_to_state_change, "STATE_CHANGE_TASK", STACK_SIZE, &state_info, tskIDLE_PRIORITY, &state_update_handle);
+    xTaskCreate(respond_to_state_change, "STATE_CHANGE_TASK", STACK_SIZE, cobra_state, tskIDLE_PRIORITY, &state_update_handle);
 
     /* Start a background task that processes nodes from the queue */
     TaskHandle_t queue_handle = NULL;
-    xTaskCreate(pop_process, "PROCESS_QUEUE_TASK", STACK_SIZE, &state_info, tskIDLE_PRIORITY, &queue_handle);
-
+    xTaskCreate(pop_process, "PROCESS_QUEUE_TASK", STACK_SIZE, cobra_state, tskIDLE_PRIORITY, &queue_handle);
     
 }

@@ -1,28 +1,25 @@
 #ifndef _COBRA_QUEUE_GUARD
 #define _COBRA_QUEUE_GUARD
 
-#define QUEUE_SIZE 10
-
 #include <string.h>
 
 #include "cobra_process.h"
 #include "cobra_errors.h"
 #include "mode_button.c"
 #include "comms_button.c"
+#include "ble_responses.c"
+#include "static_members.c"
 
 const char * QUEUE_TAG = "QUEUE";
 
-static cobra_process_queue_t cobra_queue = {
-    .max_size = QUEUE_SIZE,
-    .first = NULL,
-    .size = 0,
-};
-
 /* return the node where this should be placed AFTER in the queue. IE, how quickly it should be processed. 
-Assumes that the first node is NOT null.
 */
 cobra_process_node_t * get_node(cobra_priority_t priority) {
     cobra_process_node_t * node =  cobra_queue.first;
+    if (node == NULL)
+    {
+        return node;
+    }
     while (node->next!=NULL)
     {
         if(node->next->info.priority == priority - 1)
@@ -37,9 +34,15 @@ cobra_process_node_t * get_node(cobra_priority_t priority) {
 
 void print_queue(){
     cobra_process_node_t *node = cobra_queue.first;
+    ESP_LOGI(QUEUE_TAG, "queue is now:");
     while(node!=NULL)
     {
-        ESP_LOGE(QUEUE_TAG, "%i, %i", node->info.process, node->info.priority);
+        if (node->info.process >= num_of_processes || node->info.priority >=num_of_priorities) {
+            ESP_LOGE(QUEUE_TAG, "%i, %i", node->info.process, node->info.priority);
+        }
+        else {
+            ESP_LOGI(QUEUE_TAG, "%i, %i", node->info.process, node->info.priority);
+        }
         node = node->next;
     }
 
@@ -59,17 +62,16 @@ void add_process(cobra_process_info_t info)
         .process = info.process,
         .priority = info.priority,
     };
-    if (cobra_queue.size == 0)
+    cobra_process_node_t * node = get_node(info.priority);
+    if (node == NULL) /*queue is currently empty*/
     {
         cobra_queue.first = new_node;
     }
     else
     {
-        cobra_process_node_t * node = get_node(info.priority);
         cobra_process_node_t * temp = node->next;
         node->next = new_node;
         new_node->next = temp;
-
     }
     cobra_queue.size++;
     print_queue();
@@ -95,6 +97,8 @@ void process_node(cobra_process_node_t node, cobra_state_struct_t *cobra_state)
         case process_alarm_went_off:
             break;
         case process_message_received:
+            /*pop a message off the BT queue for processing*/
+            process_msg();
             break;
         default:
             break;

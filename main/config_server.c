@@ -4,16 +4,10 @@
 #include "esp_ble_mesh_config_model_api.h"
 #include "config_struct.h"
 #include "nvs.c"
+#include "static_members.c"
 
-const uint16_t NOT_VENDOR_MODEL = 0xFFF; /* See ESP-IDF API reference for company ID */
+const uint16_t NOT_VENDOR_MODEL = 0xFFFF; /* See ESP-IDF API reference for company ID */
 const char* SERVER_TAG = "CONFIG_SERVER"; /* logging*/
-
-// updated with app keys after provisioning/configurations
-static config_info_t config_info = {
-    .net_idx = ESP_BLE_MESH_KEY_UNUSED,
-    .app_idx = ESP_BLE_MESH_KEY_UNUSED,
-    .tid = 0,
-};
 
 
 //************* CONFIGURATION SERVER MODEL *************//
@@ -63,6 +57,7 @@ void config_server_callback(esp_ble_mesh_cfg_server_cb_event_t event,
                 param->value.state_change.mod_app_bind.model_id);
             if (param->value.state_change.mod_app_bind.company_id == NOT_VENDOR_MODEL){ 
                 config_info.app_idx = param->value.state_change.mod_app_bind.app_idx;
+                ESP_LOGE(SERVER_TAG, "saving app_idx: 0x%04x",param->value.state_change.mod_app_bind.app_idx );
                 update_nvs_data(config_info); /* Store proper mesh example info */
             }
             break;

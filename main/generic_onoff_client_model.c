@@ -1,21 +1,34 @@
 #ifndef _GEN_ONOFF_CLIENT_MODEL_GUARD
 #define _GEN_ONOFF_CLIENT_MODEL_GUARD
 
+#include "esp_ble_mesh_defs.h"
 #include "esp_ble_mesh_generic_model_api.h"
 #include "config_server.c"
-
+#include "cobra_process.h"
+#include "ble_responses.c"
+#include "static_members.c"
 
 const uint16_t GROUP_ADDR = 0xC000; /* TODO: get this from the configuration client. Group Address assigned to all Group Members */
 const char* GEN_ONOFF_TAG = "Gen_OnOff_Client"; /* logging*/
+
 
 //************* GENERIC ONOFF CLIENT MODEL *************//
 // root node: receives status from member bracelets. 
 // transmits requests for get, set, and set unack of
 // the body LEDs.
 //***********************************************//
-// Generic OnOff Client Model Conext
-static esp_ble_mesh_client_t onoff_client;
+
 ESP_BLE_MESH_MODEL_PUB_DEFINE(onoff_cli_pub, 2 + 1, ROLE_NODE);
+
+/*debug*/
+void log_ble_mesh_client_params(esp_ble_mesh_client_common_param_t *client_params,
+                                esp_ble_mesh_generic_client_set_state_t *set_state)
+{
+    ESP_LOGE("BLE_MESH_CLIENT", "Client Model ID: 0x%04X, Client context net idx: 0x%04X, Client context app index: 0x%04X, Opcode: 0x%04X, TID: %i, onoff: %i",
+             client_params->model->model_id, client_params->ctx.net_idx, client_params->ctx.app_idx, 
+             client_params->opcode, set_state->onoff_set.tid, set_state->onoff_set.onoff);
+}
+ 
 
 // send set on off message. acknowledged.
 void send_gen_onoff_set(void) {
@@ -39,6 +52,7 @@ void send_gen_onoff_set(void) {
     set.onoff_set.tid = config_info.tid;
     config_info.tid++;
 
+    log_ble_mesh_client_params(&common, &set);
     err = esp_ble_mesh_generic_client_set_state(&common, &set); 
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
 
@@ -51,7 +65,10 @@ void generic_onoff_client_cb(esp_ble_mesh_generic_client_cb_event_t event, esp_b
 
     switch (event) {
     case ESP_BLE_MESH_GENERIC_CLIENT_GET_STATE_EVT:
+        /*TODO: figure out why we're not hitting ESP_BLE_MESH_GENERIC_CLIENT_SET_STATE_EVT. potentially the payload is wrong*/
         ESP_LOGI(GEN_ONOFF_TAG, "ESP_BLE_MESH_GENERIC_CLIENT_GET_STATE_EVT");
+        cobra_process_t proc = process_message_received;
+
         if (param->params->opcode == ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_GET) {
             ESP_LOGI(GEN_ONOFF_TAG, "ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_GET, onoff %d", param->status_cb.onoff_status.present_onoff);
         }
@@ -64,6 +81,8 @@ void generic_onoff_client_cb(esp_ble_mesh_generic_client_cb_event_t event, esp_b
         break;
     case ESP_BLE_MESH_GENERIC_CLIENT_PUBLISH_EVT:
         ESP_LOGI(GEN_ONOFF_TAG, "ESP_BLE_MESH_GENERIC_CLIENT_PUBLISH_EVT");
+
+
         break;
     case ESP_BLE_MESH_GENERIC_CLIENT_TIMEOUT_EVT:
         ESP_LOGI(GEN_ONOFF_TAG, "ESP_BLE_MESH_GENERIC_CLIENT_TIMEOUT_EVT");
