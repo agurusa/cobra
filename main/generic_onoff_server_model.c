@@ -4,6 +4,7 @@
 #include "cobra_process.h"
 #include "cobra_queue.c"
 #include "ble_responses.c"
+#include "static_members.c"
 
 const char* GEN_ONOFF_SERVER_TAG = "Gen_OnOff_Server"; /* logging*/
 
@@ -13,14 +14,8 @@ const char* GEN_ONOFF_SERVER_TAG = "Gen_OnOff_Server"; /* logging*/
 // receives requests for get, set, and set unack of
 // the body LEDs.
 //***********************************************//
-// Generic OnOff Server Model Conext
 
 ESP_BLE_MESH_MODEL_PUB_DEFINE(onoff_serv_pub, 2+3, ROLE_NODE);
-static esp_ble_mesh_gen_onoff_srv_t onoff_server = {
-    .rsp_ctrl.get_auto_rsp = ESP_BLE_MESH_SERVER_AUTO_RSP,
-    .rsp_ctrl.set_auto_rsp =  ESP_BLE_MESH_SERVER_AUTO_RSP,
-    .rsp_ctrl.status_auto_rsp = ESP_BLE_MESH_SERVER_AUTO_RSP
-};
 
 /*TODO*/
 void handle_generic_onoff_state_change(esp_ble_mesh_generic_server_cb_event_t event,

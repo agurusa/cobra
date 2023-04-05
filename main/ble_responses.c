@@ -2,16 +2,11 @@
 #define _BLE_RESPONSES_GUARD
 
 #include "cobra_process.h"
+#include "static_members.c"
 
 //TODO: make this a class
 
 const char* BLE_QUEUE = "MSG_QUEUE";
-
-static cobra_message_queue_t rxn_messages = {
-    .first = NULL,
-};
-static bool msg_received = false;
-
 
 bool empty()
 {

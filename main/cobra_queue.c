@@ -1,8 +1,6 @@
 #ifndef _COBRA_QUEUE_GUARD
 #define _COBRA_QUEUE_GUARD
 
-#define QUEUE_SIZE 10
-
 #include <string.h>
 
 #include "cobra_process.h"
@@ -10,14 +8,9 @@
 #include "mode_button.c"
 #include "comms_button.c"
 #include "ble_responses.c"
+#include "static_members.c"
 
 const char * QUEUE_TAG = "QUEUE";
-
-static cobra_process_queue_t cobra_queue = {
-    .max_size = QUEUE_SIZE,
-    .first = NULL,
-    .size = 0,
-};
 
 /* return the node where this should be placed AFTER in the queue. IE, how quickly it should be processed. 
 */

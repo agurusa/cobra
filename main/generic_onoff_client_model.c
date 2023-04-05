@@ -6,6 +6,7 @@
 #include "config_server.c"
 #include "cobra_process.h"
 #include "ble_responses.c"
+#include "static_members.c"
 
 const uint16_t GROUP_ADDR = 0xC000; /* TODO: get this from the configuration client. Group Address assigned to all Group Members */
 const char* GEN_ONOFF_TAG = "Gen_OnOff_Client"; /* logging*/
@@ -16,8 +17,7 @@ const char* GEN_ONOFF_TAG = "Gen_OnOff_Client"; /* logging*/
 // transmits requests for get, set, and set unack of
 // the body LEDs.
 //***********************************************//
-// Generic OnOff Client Model Conext
-static esp_ble_mesh_client_t onoff_client;
+
 ESP_BLE_MESH_MODEL_PUB_DEFINE(onoff_cli_pub, 2 + 1, ROLE_NODE);
 
 /*debug*/

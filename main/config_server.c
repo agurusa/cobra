@@ -4,16 +4,10 @@
 #include "esp_ble_mesh_config_model_api.h"
 #include "config_struct.h"
 #include "nvs.c"
+#include "static_members.c"
 
 const uint16_t NOT_VENDOR_MODEL = 0xFFFF; /* See ESP-IDF API reference for company ID */
 const char* SERVER_TAG = "CONFIG_SERVER"; /* logging*/
-
-// updated with app keys after provisioning/configurations
-static config_info_t config_info = {
-    .net_idx = ESP_BLE_MESH_KEY_UNUSED,
-    .app_idx = ESP_BLE_MESH_KEY_UNUSED,
-    .tid = 0,
-};
 
 
 //************* CONFIGURATION SERVER MODEL *************//
