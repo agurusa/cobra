@@ -17,8 +17,8 @@
 #include "config_server.c"
 #include "generic_onoff_client_model.c"
 #include "generic_onoff_server_model.c"
+#include "static_members.c"
 
-#define STACK_SIZE  2048
 #define COBRA_ROLE role_listener /*TODO: update this based on what is gathered by the app sync*/
 
 const char * TAG = "APP"; 
@@ -145,6 +145,5 @@ void app_main(void)
     /* Start a background task that processes nodes from the queue */
     TaskHandle_t queue_handle = NULL;
     xTaskCreate(pop_process, "PROCESS_QUEUE_TASK", STACK_SIZE, cobra_state, tskIDLE_PRIORITY, &queue_handle);
-
     
 }

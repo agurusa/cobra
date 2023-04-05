@@ -6,8 +6,10 @@
 
 #include "cobra_process.h"
 #include "config_struct.h"
+#include "cobra_led_struct.h"
 
 #define QUEUE_SIZE 10
+#define STACK_SIZE  2048
 
 static cobra_process_queue_t cobra_queue = {
     .max_size = QUEUE_SIZE,
@@ -36,5 +38,11 @@ static esp_ble_mesh_gen_onoff_srv_t onoff_server = {
     .rsp_ctrl.set_auto_rsp =  ESP_BLE_MESH_SERVER_AUTO_RSP,
     .rsp_ctrl.status_auto_rsp = ESP_BLE_MESH_SERVER_AUTO_RSP
 };
+
+//Blinks LED
+static int led_on = 0;
+
+/* For when we start a background task that blinks the LED */
+static TaskHandle_t led_blink_handle = NULL;
 
 #endif
