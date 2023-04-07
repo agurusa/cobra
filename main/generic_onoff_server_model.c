@@ -8,6 +8,12 @@
 
 const char* GEN_ONOFF_SERVER_TAG = "Gen_OnOff_Server"; /* logging*/
 
+// Generic OnOff Server Model Conext
+static esp_ble_mesh_gen_onoff_srv_t onoff_server = {
+    .rsp_ctrl.get_auto_rsp = ESP_BLE_MESH_SERVER_AUTO_RSP,
+    .rsp_ctrl.set_auto_rsp =  ESP_BLE_MESH_SERVER_AUTO_RSP,
+    .rsp_ctrl.status_auto_rsp = ESP_BLE_MESH_SERVER_AUTO_RSP
+};
 
 //************* GENERIC ONOFF SERVER MODEL *************//
 // root node: transmits status from member bracelets. 

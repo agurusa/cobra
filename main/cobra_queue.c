@@ -11,6 +11,11 @@
 #include "static_members.c"
 
 const char * QUEUE_TAG = "QUEUE";
+static cobra_process_queue_t cobra_queue = {
+    .max_size = QUEUE_SIZE,
+    .first = NULL,
+    .size = 0,
+};
 
 /* return the node where this should be placed AFTER in the queue. IE, how quickly it should be processed. 
 */

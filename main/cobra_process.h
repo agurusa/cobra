@@ -60,7 +60,7 @@ typedef union{
 }ble_mesh_event_t;
 
 
-typedef struct {
+typedef struct cobra_bt_response_t{
     cobra_bt_message_t response;
     struct cobra_bt_response_t * next;
     ble_mesh_event_t event;
