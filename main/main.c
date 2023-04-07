@@ -17,6 +17,8 @@
 #include "config_server.c"
 #include "generic_onoff_client_model.c"
 #include "generic_onoff_server_model.c"
+#include "light_hsl_client_model.c"
+#include "light_hsl_server_model.c"
 #include "static_members.c"
 
 #define COBRA_ROLE role_listener /*TODO: update this based on what is gathered by the app sync*/

@@ -8,6 +8,10 @@
 #include "static_members.c"
 #include "state_enum.h"
 
+/* For when we start a background task that blinks the LED */
+static int led_on = 0;
+static TaskHandle_t led_blink_handle = NULL;
+
 const char * LED_TAG = "LED";
 
 led_strip_handle_t led_strip;

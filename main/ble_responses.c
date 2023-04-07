@@ -7,6 +7,9 @@
 //TODO: make this a class
 
 const char* BLE_QUEUE = "MSG_QUEUE";
+static cobra_message_queue_t rxn_messages = {
+    .first = NULL,
+};
 
 bool empty()
 {
