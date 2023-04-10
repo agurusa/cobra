@@ -9,6 +9,7 @@
 #include "state_enum.h"
 #include "state_updater.c"
 #include "cobra_button.h"
+#include "cobra_colors.h"
 #include "cobra_leds.c"
 #include "periodic_timer.c"
 #include "nvs.c"
@@ -21,10 +22,15 @@
 #include "light_hsl_server_model.c"
 #include "static_members.c"
 
-#define COBRA_ROLE role_listener /*TODO: update this based on what is gathered by the app sync*/
+/*TODO: update these based on what is gathered by the app sync*/
+#define COBRA_ROLE role_listener
+#define USER_LIGHTNESS 20
+#define USER_HUE 20
+#define USER_SATURATION 20
 
 const char * TAG = "APP"; 
 const uint16_t NO_DESCRIPTOR = 0; /* used for the Loc field in elements*/
+
 
 esp_ble_mesh_model_t root_models[] = {
     ESP_BLE_MESH_MODEL_CFG_SRV(&config_server),
@@ -34,25 +40,38 @@ esp_ble_mesh_model_t root_models[] = {
 
 esp_ble_mesh_model_t secondary_models[] = {
     ESP_BLE_MESH_MODEL_GEN_ONOFF_SRV(&onoff_serv_pub, &onoff_server),
+    ESP_BLE_MESH_MODEL_LIGHT_HSL_CLI(&hsl_cli_pub, &hsl_client)
+};
+
+esp_ble_mesh_model_t light_hsl_models[] = {
+    ESP_BLE_MESH_MODEL_LIGHT_LIGHTNESS_SRV(&lightness_pub, &lightness_server),
+    ESP_BLE_MESH_MODEL_LIGHT_LIGHTNESS_SETUP_SRV(&lightness_setup_pub, &lightness_setup_server),
+    ESP_BLE_MESH_MODEL_LIGHT_HSL_SRV(&hsl_srv_pub, &hsl_server),
+    ESP_BLE_MESH_MODEL_LIGHT_HSL_SETUP_SRV(&hsl_setup_pub, &hsl_setup_server),
 };
 
 // struct holding all elements
 esp_ble_mesh_elem_t elements[] = {
     ESP_BLE_MESH_ELEMENT(NO_DESCRIPTOR, root_models, ESP_BLE_MESH_MODEL_NONE),
     ESP_BLE_MESH_ELEMENT(NO_DESCRIPTOR, secondary_models, ESP_BLE_MESH_MODEL_NONE),
+    ESP_BLE_MESH_ELEMENT(NO_DESCRIPTOR, light_hsl_models, ESP_BLE_MESH_MODEL_NONE)
 };
 
-void set_initial_state(cobra_state_struct_t *state)
+void set_initial_state(cobra_state_struct_t *state, cobra_colors_t *user_color)
 {
     (*state).current_state = state_startup;
     (*state).next_state = state_startup;
     (*state).group_role = COBRA_ROLE;
     (*state).current_mode = mode_music;
+    (*user_color).lightness = USER_LIGHTNESS;
+    (*user_color).hue = USER_HUE;
+    (*user_color).saturation = USER_SATURATION;
+    (*state).user_color = *user_color;
 };
 
 void print_state(cobra_state_struct_t *state)
 {
-    ESP_LOGE(TAG, "current state: %i, next state: %i, role %i, current mode %i", (*state).current_state, (*state).next_state, (*state).group_role, (*state).current_mode);
+    ESP_LOGE(TAG, "current state: %i, next state: %i, role %i, current mode %i, lightness: %u, hue %u, saturation %u", (*state).current_state, (*state).next_state, (*state).group_role, (*state).current_mode, (*state).user_color.lightness, (*state).user_color.hue, (*state).user_color.saturation);
 }
 
 void app_main(void)
@@ -75,7 +94,8 @@ void app_main(void)
 
     /* STATE TIMER */
     cobra_state_struct_t *cobra_state = calloc(1, sizeof(cobra_state_struct_t));
-    set_initial_state(cobra_state);
+     cobra_colors_t *user_color = calloc(1, sizeof(cobra_colors_t));
+    set_initial_state(cobra_state, user_color);
     print_state(cobra_state);
 
     const esp_timer_create_args_t state_timer_args = {

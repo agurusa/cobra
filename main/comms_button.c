@@ -2,6 +2,7 @@
 #define _COMMS_BUTTON_GUARD
 
 #include "generic_onoff_client_model.c"
+#include "light_hsl_client_model.c"
 #include "static_members.c"
 
 const char * COMMS_TAG = "COMMS";
@@ -35,6 +36,7 @@ void press_comms_button_short(cobra_state_struct_t *cobra_state)
             /*acknowledge*/
             ESP_LOGE(COMMS_TAG, "acknowleding");
             /*light_hsl_client model set tx*/
+            send_hsl_set_message(cobra_state->user_color);
             /*update state to passive*/
             msg_received = false;
             break;

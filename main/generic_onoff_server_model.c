@@ -23,7 +23,6 @@ static esp_ble_mesh_gen_onoff_srv_t onoff_server = {
 
 ESP_BLE_MESH_MODEL_PUB_DEFINE(onoff_serv_pub, 2+3, ROLE_NODE);
 
-/*TODO*/
 void handle_generic_onoff_state_change(esp_ble_mesh_generic_server_cb_event_t event,
                             esp_ble_mesh_generic_server_cb_param_t *param){
     ESP_LOGI(GEN_ONOFF_SERVER_TAG, "on off state change");
