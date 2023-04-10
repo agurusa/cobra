@@ -4,6 +4,7 @@
 #include "generic_onoff_client_model.c"
 #include "light_hsl_client_model.c"
 #include "static_members.c"
+#include "cobra_colors.h"
 
 const char * COMMS_TAG = "COMMS";
 
@@ -15,6 +16,9 @@ void press_comms_button_long(cobra_state_struct_t *cobra_state)
         case state_listener_active:
             /*snooze (remind user to respond in 5 min)*/
             /*update state to passive*/
+            send_hsl_set_message(YELLOW);
+            msg_received = false;
+            /*TODO:start timer countown to process this again*/
             break;
         default:
             break;

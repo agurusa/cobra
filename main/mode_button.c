@@ -2,6 +2,8 @@
 #define _MODE_BUTTON_GUARD
 
 #include "state_enum.h"
+#include "light_hsl_client_model.c"
+#include "cobra_colors.h"
 
 const char * MODE_TAG = "MODE";
 
@@ -25,8 +27,10 @@ void press_mode_button_long(cobra_state_struct_t *cobra_state)
     switch(cobra_state->current_state)
     {
         case state_listener_active:
-            /*silence (refuse to acknowledge/snooze)*/
+            /*silence*/
+            send_hsl_set_message(RED);
             /*update state to passive*/
+            msg_received = false;
             break;
         default:
             break;
