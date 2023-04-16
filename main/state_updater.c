@@ -90,7 +90,7 @@ void respond_to_state_change(void * args)
                 default:
                     break;
             }
-            fillBodyLeds(next_state, board_led);
+            fillBodyLeds(next_state, led_strip);
             // update the current state to reflect the new state
             (*state).current_state = next_state; 
             ESP_LOGE(STATE_TAG, "current state now: %i", (*state).current_state);

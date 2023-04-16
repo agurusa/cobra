@@ -114,8 +114,9 @@ void app_main(void)
     err = button_setup(MODE_BUTTON_PIN);
     ESP_ERROR_CHECK(err);
     err = setupBodyLeds();
+    ESP_ERROR_CHECK(err);
     /*debug only*/
-    err = setupBoardLed();
+    // err = setupBoardLed();
 
     /* START TIMERS */
     err = esp_timer_start_periodic(periodic_timer, PERIOD_MS);

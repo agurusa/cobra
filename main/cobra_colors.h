@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 
 typedef struct cobra_colors_t{
     uint16_t lightness;

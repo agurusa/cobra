@@ -3,6 +3,9 @@
 
 #include "esp_err.h"
 #include "driver/gpio.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
 #include "led_strip.h"
 #include "cobra_led_struct.h"
 #include "static_members.c"
@@ -17,10 +20,10 @@ const char * LED_TAG = "LED";
 led_strip_handle_t led_strip;
 
 
-const int NUM_LEDS = 30;
+const int NUM_LEDS = 10;
 const int LED_GPIO = GPIO_NUM_5;
-// const int COMMS_LED_INDEX = 1;
-const int COMMS_LED_INDEX = 0; /*debug only*/
+const int COMMS_LED_INDEX = 1;
+// const int COMMS_LED_INDEX = 0; /*debug only*/
 const int STARTUP_LED_INDEX = 0;
 
 led_struct_t *led_struct = NULL; /*for blinking LEDs*/
