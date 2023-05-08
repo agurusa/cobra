@@ -37,7 +37,6 @@ esp_ble_mesh_model_t root_models[] = {
     ESP_BLE_MESH_MODEL_CFG_SRV(&config_server),
     ESP_BLE_MESH_MODEL_HEALTH_SRV(&health_server, &health_pub),
     ESP_BLE_MESH_MODEL_GEN_ONOFF_CLI(&onoff_cli_pub, &onoff_client),
-    ESP_BLE_MESH_MODEL_GEN_PROPERTY_CLI(&gen_prop_cli_pub, &gen_prop_cli)
 };
 
 esp_ble_mesh_model_t secondary_models[] = {
