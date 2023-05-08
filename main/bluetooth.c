@@ -5,6 +5,7 @@
 #include "esp_bt_device.h"
 #include "esp_ble_mesh_common_api.h"
 #include "esp_ble_mesh_generic_model_api.h"
+#include "esp_ble_mesh_networking_api.h"
 #include "esp_ble_mesh_provisioning_api.h"
 #include "esp_ble_mesh_config_model_api.h"
 #include "esp_ble_mesh_lighting_model_api.h"
@@ -14,6 +15,7 @@
 #include "config_server.c"
 #include "generic_onoff_server_model.c"
 #include "generic_onoff_client_model.c"
+#include "generic_user_property_server_model.c"
 #include "light_hsl_server_model.c"
 
 /***
@@ -26,6 +28,7 @@ const char * BLUETOOTH_TAG = "BLUETOOTH";
 
 esp_err_t ble_mesh_init(esp_ble_mesh_elem_t *elements, size_t length_of_elements) {
     fill_composition_data(elements, length_of_elements, &composition);
+    prop_server.properties[0].val = 0x01;
     esp_err_t err = ESP_OK;
     memcpy(dev_uuid + 2, esp_bt_dev_get_address(), 6);
     esp_ble_mesh_register_prov_callback(provisioning_callback);
@@ -44,6 +47,7 @@ esp_err_t ble_mesh_init(esp_ble_mesh_elem_t *elements, size_t length_of_elements
         ESP_LOGE(BLUETOOTH_TAG, "Failed to enable mesh node (err %d)", err);
         return err;
     }
+
 
     ESP_LOGI(BLUETOOTH_TAG, "BLE Mesh Node initialized");
     return err;

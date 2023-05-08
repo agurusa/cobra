@@ -60,7 +60,7 @@ void handle_generic_onoff_set_unack(){
 void generic_onoff_server_cb (esp_ble_mesh_generic_server_cb_event_t event,
                             esp_ble_mesh_generic_server_cb_param_t *param){
     esp_ble_mesh_gen_onoff_srv_t *srv;
-    ESP_LOGI(GEN_ONOFF_SERVER_TAG, "event 0x%02x, opcode 0x%04x, src 0x%04x, dst 0x%04x",
+    ESP_LOGI("RECEIVED_MSG_EVENT", "event 0x%02x, opcode 0x%04x, src 0x%04x, dst 0x%04x",
         event, param->ctx.recv_op, param->ctx.addr, param->ctx.recv_dst);
     switch (event) {
     case ESP_BLE_MESH_GENERIC_SERVER_STATE_CHANGE_EVT:
