@@ -20,6 +20,7 @@
 #include "generic_onoff_server_model.c"
 #include "light_hsl_client_model.c"
 #include "light_hsl_server_model.c"
+#include "generic_user_property_server_model.c"
 #include "static_members.c"
 
 /*TODO: update these based on what is gathered by the app sync*/
@@ -40,7 +41,8 @@ esp_ble_mesh_model_t root_models[] = {
 
 esp_ble_mesh_model_t secondary_models[] = {
     ESP_BLE_MESH_MODEL_GEN_ONOFF_SRV(&onoff_serv_pub, &onoff_server),
-    ESP_BLE_MESH_MODEL_LIGHT_HSL_CLI(&hsl_cli_pub, &hsl_client)
+    ESP_BLE_MESH_MODEL_LIGHT_HSL_CLI(&hsl_cli_pub, &hsl_client),
+    ESP_BLE_MESH_MODEL_GEN_USER_PROP_SRV(&property_serv_pub, &prop_server)
 };
 
 esp_ble_mesh_model_t light_hsl_models[] = {
@@ -149,6 +151,8 @@ void app_main(void)
 
 
     err = ble_mesh_init(elements, sizeof(elements)/sizeof(elements[0]));
+    
+
     if (err) {
         ESP_LOGE(TAG, "ble mesh init failed (err %d)", err);
         return;

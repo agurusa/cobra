@@ -48,6 +48,7 @@ typedef enum {
     message_snoozed,
     message_group_owner,
     message_location_requested,
+    message_from_phone_app
 }cobra_bt_message_t;
 
 typedef union {

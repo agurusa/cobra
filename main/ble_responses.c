@@ -65,8 +65,9 @@ void push_msg(cobra_bt_response_t *rsp)
 void process_msg()
 {
     cobra_bt_response_t *rsp = pop_msg();
-    msg_received = true;
+
     /*changes to comms mode*/
+    msg_received = true;
     switch(rsp->response)
     {
         case message_acknowledged:
@@ -78,6 +79,11 @@ void process_msg()
         case message_group_owner:
             break;
         case message_location_requested:
+            break;
+        case message_from_phone_app:
+            if(rsp->param->server->value.set.user_property.property_id == COBRA_ROLE_ID) {
+                    ESP_LOGE(BLE_QUEUE, "cobra role changing");
+            }
             break;
         default:
             break;
