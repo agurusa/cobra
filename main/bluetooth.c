@@ -17,6 +17,7 @@
 #include "generic_onoff_client_model.c"
 #include "generic_user_property_server_model.c"
 #include "light_hsl_server_model.c"
+#include "common_server.c"
 
 /***
  * Initialize the board's UUID. 
@@ -28,12 +29,15 @@ const char * BLUETOOTH_TAG = "BLUETOOTH";
 
 esp_err_t ble_mesh_init(esp_ble_mesh_elem_t *elements, size_t length_of_elements) {
     fill_composition_data(elements, length_of_elements, &composition);
-    prop_server.properties[0].val = 0x01;
+    for (int i = 0; i < prop_server.property_count; i++){
+        net_buf_simple_init(prop_server.properties[i].val, 0);
+        prop_server.properties[i].val = 0x00;
+    };
     esp_err_t err = ESP_OK;
     memcpy(dev_uuid + 2, esp_bt_dev_get_address(), 6);
     esp_ble_mesh_register_prov_callback(provisioning_callback);
     esp_ble_mesh_register_config_server_callback(config_server_callback);
-    esp_ble_mesh_register_generic_server_callback(generic_onoff_server_cb);
+    esp_ble_mesh_register_generic_server_callback(generic_server_cb);
     esp_ble_mesh_register_generic_client_callback(generic_onoff_client_cb);
     esp_ble_mesh_register_lighting_server_callback(hsl_server_cb);
     err = esp_ble_mesh_init(&provision, &composition);
