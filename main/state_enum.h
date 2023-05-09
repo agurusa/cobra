@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cobra_colors.h"
 #include "cobra_roles.h"
 
 typedef enum {
@@ -28,5 +29,5 @@ typedef struct {
   cobra_state_t current_state;
   cobra_state_t next_state;
   cobra_role_t group_role;
-
+  cobra_colors_t user_color;
 }cobra_state_struct_t;

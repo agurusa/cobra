@@ -8,7 +8,6 @@
 #include "ble_responses.c"
 #include "static_members.c"
 
-const uint16_t GROUP_ADDR = 0xC000; /* TODO: get this from the configuration client. Group Address assigned to all Group Members */
 const char* GEN_ONOFF_TAG = "Gen_OnOff_Client"; /* logging*/
 // Generic OnOff Client Model Conext
 static esp_ble_mesh_client_t onoff_client;

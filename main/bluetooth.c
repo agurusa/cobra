@@ -7,12 +7,14 @@
 #include "esp_ble_mesh_generic_model_api.h"
 #include "esp_ble_mesh_provisioning_api.h"
 #include "esp_ble_mesh_config_model_api.h"
+#include "esp_ble_mesh_lighting_model_api.h"
 
 #include "security_structs.h"
 #include "provisioning.c"
 #include "config_server.c"
 #include "generic_onoff_server_model.c"
 #include "generic_onoff_client_model.c"
+#include "light_hsl_server_model.c"
 
 /***
  * Initialize the board's UUID. 
@@ -30,6 +32,7 @@ esp_err_t ble_mesh_init(esp_ble_mesh_elem_t *elements, size_t length_of_elements
     esp_ble_mesh_register_config_server_callback(config_server_callback);
     esp_ble_mesh_register_generic_server_callback(generic_onoff_server_cb);
     esp_ble_mesh_register_generic_client_callback(generic_onoff_client_cb);
+    esp_ble_mesh_register_lighting_server_callback(hsl_server_cb);
     err = esp_ble_mesh_init(&provision, &composition);
     if (err != ESP_OK) {
         ESP_LOGE(BLUETOOTH_TAG, "Failed to initialize ble mesh (err %d)", err);

@@ -2,6 +2,7 @@
 
 #include "state_enum.h"
 #include "esp_ble_mesh_generic_model_api.h"
+#include "esp_ble_mesh_lighting_model_api.h"
 
 typedef enum {
     process_none, /* special process for queuing*/
@@ -52,11 +53,13 @@ typedef enum {
 typedef union {
     esp_ble_mesh_generic_server_cb_param_t * server;
     esp_ble_mesh_generic_client_cb_param_t * client;
+    esp_ble_mesh_lighting_server_cb_param_t * hsl_srv;
 }ble_mesh_param_t;
 
 typedef union{
     esp_ble_mesh_generic_server_cb_event_t server;
     esp_ble_mesh_generic_client_cb_event_t client;
+    esp_ble_mesh_lighting_server_state_change_t hsl_srv;
 }ble_mesh_event_t;
 
 
