@@ -36,8 +36,7 @@ ESP_BLE_MESH_MODEL_PUB_DEFINE(property_serv_pub, 2+3, ROLE_NODE);
 
 void handle_usr_prop_state_change(esp_ble_mesh_generic_server_cb_event_t event,
                             esp_ble_mesh_generic_server_cb_param_t *param){
-    ESP_LOGE(GEN_PROP_SERVER_TAG, "usr prop state change");
-    ESP_LOGE(GEN_PROP_SERVER_TAG, "changing the role. length is: 0x%04x", param->value.set.user_property.property_value->len);
+    ESP_LOGI(GEN_PROP_SERVER_TAG, "usr prop state change");
     cobra_bt_response_t *msg = calloc(1, sizeof(cobra_bt_response_t));
     msg->response = message_from_phone_app;
     msg->next = NULL;
