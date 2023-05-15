@@ -29,7 +29,7 @@ void print_msg(cobra_bt_response_t *rsp)
 {
     esp_ble_mesh_generic_server_cb_param_t * param = rsp->param->server;
     esp_ble_mesh_generic_server_cb_event_t event = (esp_ble_mesh_generic_server_cb_event_t) rsp->event.server;
-    ESP_LOGE(BLE_QUEUE, "msg: %i, next: %s, event: %i, param net idx: 0x%04x", rsp->response, rsp->next == NULL? "NULL" : "not null", event, param->ctx.net_idx);
+    ESP_LOGI(BLE_QUEUE, "msg: %i, next: %s, event: %i, param net idx: 0x%04x", rsp->response, rsp->next == NULL? "NULL" : "not null", event, param->ctx.net_idx);
 
 };
 
@@ -46,7 +46,7 @@ void print_msg_queue(cobra_message_queue_t queue)
 void push_msg(cobra_bt_response_t *rsp)
 {
 
-    print_msg(rsp);
+    // print_msg(rsp); TODO: figure out why this is crashing (dangling pointer?)
     if(empty())
     {
         rxn_messages.first = rsp;
@@ -81,9 +81,12 @@ void process_msg()
         case message_location_requested:
             break;
         case message_from_phone_app:
-            if(rsp->param->server->value.set.user_property.property_id == COBRA_ROLE_ID) {
-                    ESP_LOGE(BLE_QUEUE, "cobra role changing");
+            //change the role of the bracelet to indicate setting sent by phone app
+            if (rsp->param->set_val_usr_role != cobra_role){
+                cobra_role = rsp->param->set_val_usr_role;
+                cobra_role_changed = true;
             }
+            msg_received = false;
             break;
         default:
             break;

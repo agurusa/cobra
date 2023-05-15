@@ -124,7 +124,7 @@ void pop_process(void *args)
             cobra_queue.size--;
             print_queue();
         }
-        vTaskDelay(50/1000);
+        vTaskDelay(1);
     }
     
 }

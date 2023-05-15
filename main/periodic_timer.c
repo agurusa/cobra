@@ -153,7 +153,7 @@ void check_buttons(void *args)
             commsButton.wasPressed=false;
             commsButton.pressTime = press_time_none;
         }
-        vTaskDelay(50 / 1000);
+        vTaskDelay(1);
     }
     
 }

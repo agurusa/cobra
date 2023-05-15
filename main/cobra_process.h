@@ -3,6 +3,7 @@
 #include "state_enum.h"
 #include "esp_ble_mesh_generic_model_api.h"
 #include "esp_ble_mesh_lighting_model_api.h"
+#include "cobra_roles.h"
 
 typedef enum {
     process_none, /* special process for queuing*/
@@ -55,6 +56,7 @@ typedef union {
     esp_ble_mesh_generic_server_cb_param_t * server;
     esp_ble_mesh_generic_client_cb_param_t * client;
     esp_ble_mesh_lighting_server_cb_param_t * hsl_srv;
+    cobra_role_t set_val_usr_role;
 }ble_mesh_param_t;
 
 typedef union{
