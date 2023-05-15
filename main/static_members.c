@@ -2,6 +2,7 @@
 #define _STATIC_MEMBERS_GUARD
 
 #include <stdbool.h>
+#include "cobra_roles.h"
 
 #define QUEUE_SIZE 10
 #define STACK_SIZE  2048
@@ -9,5 +10,7 @@
 #define COBRA_ROLE_ID 0x1111
 
 static bool msg_received = false;
+static cobra_role_t cobra_role = role_listener;
+static bool cobra_role_changed = false;
 
 #endif

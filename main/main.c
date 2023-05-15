@@ -24,7 +24,6 @@
 #include "static_members.c"
 
 /*TODO: update these based on what is gathered by the app sync*/
-#define COBRA_ROLE role_listener
 #define USER_LIGHTNESS 20
 #define USER_HUE 20
 #define USER_SATURATION 20
@@ -63,7 +62,7 @@ void set_initial_state(cobra_state_struct_t *state, cobra_colors_t *user_color)
 {
     (*state).current_state = state_startup;
     (*state).next_state = state_startup;
-    (*state).group_role = COBRA_ROLE;
+    (*state).group_role = cobra_role;
     (*state).current_mode = mode_music;
     (*user_color).lightness = USER_LIGHTNESS;
     (*user_color).hue = USER_HUE;
