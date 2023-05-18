@@ -21,7 +21,7 @@
 #include "light_hsl_client_model.c"
 #include "light_hsl_server_model.c"
 #include "generic_user_property_server_model.c"
-#include "static_members.c"
+#include "static_members.h"
 
 /*TODO: update these based on what is gathered by the app sync*/
 #define USER_LIGHTNESS 20

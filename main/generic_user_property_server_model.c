@@ -5,7 +5,7 @@
 #include "cobra_process.h"
 #include "cobra_queue.c"
 #include "ble_responses.c"
-#include "static_members.c"
+#include "static_members.h"
 
 const char* GEN_PROP_SERVER_TAG = "Gen_Prop_Server"; /* logging*/
 

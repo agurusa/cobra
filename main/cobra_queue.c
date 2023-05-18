@@ -8,7 +8,7 @@
 #include "mode_button.c"
 #include "comms_button.c"
 #include "ble_responses.c"
-#include "static_members.c"
+#include "static_members.h"
 
 const char * QUEUE_TAG = "QUEUE";
 static cobra_process_queue_t cobra_queue = {

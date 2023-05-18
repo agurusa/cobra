@@ -8,7 +8,7 @@
 
 #include "led_strip.h"
 #include "cobra_led_struct.h"
-#include "static_members.c"
+#include "static_members.h"
 #include "state_enum.h"
 
 /* For when we start a background task that blinks the LED */

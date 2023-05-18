@@ -1,16 +1,11 @@
-#ifndef _STATIC_MEMBERS_GUARD
-#define _STATIC_MEMBERS_GUARD
-
 #include <stdbool.h>
+#include "static_members.h"
 #include "cobra_roles.h"
 
-#define QUEUE_SIZE 10
-#define STACK_SIZE  2048
-#define GROUP_ADDR 0xC000 /* TODO: get this from the configuration client. Group Address assigned to all Group Members */
-#define COBRA_ROLE_ID 0x1111
+bool msg_received = false;
+cobra_role_t cobra_role = role_listener;
+bool cobra_role_changed = false;
 
-static bool msg_received = false;
-static cobra_role_t cobra_role = role_listener;
-static bool cobra_role_changed = false;
-
-#endif
+void update_msg_received(bool val){
+    msg_received = val;
+}

@@ -6,7 +6,7 @@
 #include "config_server.c"
 #include "cobra_process.h"
 #include "ble_responses.c"
-#include "static_members.c"
+#include "static_members.h"
 
 const char* GEN_ONOFF_TAG = "Gen_OnOff_Client"; /* logging*/
 // Generic OnOff Client Model Conext
@@ -40,7 +40,6 @@ void send_gen_onoff_set(void) {
     common.model = onoff_client.model;
     common.ctx.net_idx  = config_info.net_idx;
     common.ctx.app_idx = config_info.app_idx;
-
     common.ctx.addr = GROUP_ADDR; /* send to all nodes subscribed to the group */
     common.ctx.send_ttl = 3; /* relay msg 3 times */
     common.ctx.send_rel = true;

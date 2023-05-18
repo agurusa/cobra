@@ -2,7 +2,7 @@
 #define _BLE_RESPONSES_GUARD
 
 #include "cobra_process.h"
-#include "static_members.c"
+#include "static_members.h"
 
 //TODO: make this a class
 
@@ -66,7 +66,7 @@ void process_msg()
     cobra_bt_response_t *rsp = pop_msg();
 
     /*changes to comms mode*/
-    msg_received = true;
+    update_msg_received(true);
     switch(rsp->response)
     {
         case message_acknowledged:

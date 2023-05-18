@@ -15,12 +15,11 @@ void update_state(cobra_state_struct_t *cobra_state)
     cobra_state_t current_state = (*cobra_state).current_state;
     cobra_mode_t current_mode = (*cobra_state).current_mode;
     cobra_state_t next_state = current_state;
-    bool process_msg = msg_received;
-    (*cobra_state).current_mode = process_msg? mode_comms : current_mode; 
+    (*cobra_state).current_mode = msg_received? mode_comms : current_mode; 
     if (cobra_role_changed) {
         (*cobra_state).group_role = cobra_role;
         cobra_role_changed = false;
-        ESP_LOGI(BLE_QUEUE, "NOW CHANGING ROLE TO: %u", cobra_role);
+        ESP_LOGI(STATE_TAG, "NOW CHANGING ROLE TO: %u", cobra_role);
 
     }
     switch(cobra_state->current_mode)
@@ -42,7 +41,7 @@ void update_state(cobra_state_struct_t *cobra_state)
             {
                 /*if we don't need to respond to any messages, we should be in the passive state*/
                 /*if there is a message to respond to, then we should be in the active state*/
-                next_state = (process_msg) ? state_listener_active : state_listener_passive;
+                next_state = (msg_received) ? state_listener_active : state_listener_passive;
             }
             break;
         case mode_locator:
@@ -53,7 +52,6 @@ void update_state(cobra_state_struct_t *cobra_state)
             break;
     }
     (*cobra_state).next_state = next_state;
-    if (process_msg) {msg_received = false;} //indicates that the receive message has been processed and all actions have been taken.
 }
 
 // see if there is a need for a state change.
