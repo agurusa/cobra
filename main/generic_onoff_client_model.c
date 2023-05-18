@@ -36,7 +36,7 @@ void send_gen_onoff_set(void) {
     esp_ble_mesh_client_common_param_t common = {0};
     esp_ble_mesh_generic_client_set_state_t set = {0};
 
-    common.opcode = ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET;
+    common.opcode = ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET_UNACK;
     common.model = onoff_client.model;
     common.ctx.net_idx  = config_info.net_idx;
     common.ctx.app_idx = config_info.app_idx;

@@ -52,9 +52,6 @@ void handle_hsl_set_message(esp_ble_mesh_lighting_server_state_change_t event, e
     msg->response = msg_rsp;
     msg->next = NULL;
     msg->event.hsl_srv = event;
-    msg->param = calloc(1, sizeof(ble_mesh_param_t));
-    msg->param->hsl_srv = calloc(1, sizeof(esp_ble_mesh_lighting_server_cb_param_t));
-    *(msg->param->hsl_srv) = *param;
     push_msg(msg);
     cobra_process_t proc = process_message_received;
     cobra_process_info_t proc_info = {

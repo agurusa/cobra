@@ -42,8 +42,6 @@ void handle_usr_prop_state_change(esp_ble_mesh_generic_server_cb_event_t event,
     msg->next = NULL;
     msg->event.server = event;
     msg->param = calloc(1, sizeof(ble_mesh_param_t));
-    msg->param->server = calloc(1, sizeof(esp_ble_mesh_generic_server_cb_param_t));
-    *(msg->param->server) = *param;
     uint8_t * data = (uint8_t *)net_buf_simple_pull_mem(param->value.set.user_property.property_value, param->value.set.user_property.property_value->len);
     if (*data == 0x01){
         msg->param->set_val_usr_role = role_listener;

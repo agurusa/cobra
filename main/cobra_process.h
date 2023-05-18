@@ -53,9 +53,6 @@ typedef enum {
 }cobra_bt_message_t;
 
 typedef union {
-    esp_ble_mesh_generic_server_cb_param_t * server;
-    esp_ble_mesh_generic_client_cb_param_t * client;
-    esp_ble_mesh_lighting_server_cb_param_t * hsl_srv;
     cobra_role_t set_val_usr_role;
 }ble_mesh_param_t;
 
