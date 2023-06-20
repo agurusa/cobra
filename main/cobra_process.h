@@ -59,7 +59,7 @@ typedef union {
 typedef union{
     esp_ble_mesh_generic_server_cb_event_t server;
     esp_ble_mesh_generic_client_cb_event_t client;
-    esp_ble_mesh_lighting_server_state_change_t hsl_srv;
+    esp_ble_mesh_lighting_server_cb_event_t hsl_srv;
 }ble_mesh_event_t;
 
 

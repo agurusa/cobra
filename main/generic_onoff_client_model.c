@@ -73,7 +73,7 @@ void generic_onoff_client_cb(esp_ble_mesh_generic_client_cb_event_t event, esp_b
         }
         break;
     case ESP_BLE_MESH_GENERIC_CLIENT_SET_STATE_EVT:
-        ESP_LOGI(GEN_ONOFF_TAG, "ESP_BLE_MESH_GENERIC_CLIENT_SET_STATE_EVT");
+        ESP_LOGI(GEN_ONOFF_TAG, "ESP_BLE_MESH_GENERIC_CLIENT_SET_STATE_EVT, addr: 0x%04x", param->params->ctx.addr);
         if (param->params->opcode == ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET) {
             ESP_LOGI(GEN_ONOFF_TAG, "ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET, onoff %d", param->status_cb.onoff_status.present_onoff);
         }

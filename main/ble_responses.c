@@ -66,10 +66,12 @@ void process_msg()
     cobra_bt_response_t *rsp = pop_msg();
 
     /*changes to comms mode*/
-    update_msg_received(true);
+    update_msg_received(true); /*in order for this to work on the listening group's bracelets, the hsl server node cannot be subscribed to the festival group (otherwise this will log as a received message)*/
     switch(rsp->response)
     {
         case message_acknowledged:
+            ESP_LOGE(BLE_QUEUE, "message acknoweldged received!");
+            update_msg_received(false);
             break;
         case message_silenced:
             break;
@@ -86,6 +88,7 @@ void process_msg()
                 cobra_role = rsp->param->set_val_usr_role;
                 cobra_role_changed = true;
             }
+            update_msg_received(false);
             break;
         default:
             break;
