@@ -4,15 +4,15 @@
 #include "cobra_process.h"
 #include "cobra_queue.c"
 #include "ble_responses.c"
-#include "static_members.c"
+#include "static_members.h"
 
 const char* GEN_ONOFF_SERVER_TAG = "Gen_OnOff_Server"; /* logging*/
 
 // Generic OnOff Server Model Conext
 static esp_ble_mesh_gen_onoff_srv_t onoff_server = {
-    .rsp_ctrl.get_auto_rsp = ESP_BLE_MESH_SERVER_RSP_BY_APP,
-    .rsp_ctrl.set_auto_rsp =  ESP_BLE_MESH_SERVER_RSP_BY_APP,
-    .rsp_ctrl.status_auto_rsp = ESP_BLE_MESH_SERVER_RSP_BY_APP
+    .rsp_ctrl.get_auto_rsp = ESP_BLE_MESH_SERVER_AUTO_RSP,
+    .rsp_ctrl.set_auto_rsp =  ESP_BLE_MESH_SERVER_AUTO_RSP,
+    .rsp_ctrl.status_auto_rsp = ESP_BLE_MESH_SERVER_AUTO_RSP
 };
 
 //************* GENERIC ONOFF SERVER MODEL *************//
@@ -31,8 +31,6 @@ void handle_generic_onoff_state_change(esp_ble_mesh_generic_server_cb_event_t ev
     msg->next = NULL;
     msg->event.server = event;
     msg->param = calloc(1, sizeof(ble_mesh_param_t));
-    msg->param->server = calloc(1, sizeof(esp_ble_mesh_generic_server_cb_param_t));
-    *(msg->param->server) = *param;
     push_msg(msg);
     cobra_process_t proc = process_message_received;
     cobra_process_info_t proc_info = {

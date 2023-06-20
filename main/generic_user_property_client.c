@@ -1,7 +1,7 @@
 #include "esp_ble_mesh_defs.h"
 #include "esp_ble_mesh_generic_model_api.h"
 #include "config_server.c"
-#include "static_members.c"
+#include "static_members.h"
 
 
 const char* GEN_USR_PROP_CLI_TAG = "PROP_CLI";

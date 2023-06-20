@@ -6,7 +6,7 @@
 #include "config_server.c"
 #include "cobra_process.h"
 #include "ble_responses.c"
-#include "static_members.c"
+#include "static_members.h"
 
 const char* GEN_ONOFF_TAG = "Gen_OnOff_Client"; /* logging*/
 // Generic OnOff Client Model Conext
@@ -36,11 +36,10 @@ void send_gen_onoff_set(void) {
     esp_ble_mesh_client_common_param_t common = {0};
     esp_ble_mesh_generic_client_set_state_t set = {0};
 
-    common.opcode = ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET;
+    common.opcode = ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET_UNACK;
     common.model = onoff_client.model;
     common.ctx.net_idx  = config_info.net_idx;
     common.ctx.app_idx = config_info.app_idx;
-
     common.ctx.addr = GROUP_ADDR; /* send to all nodes subscribed to the group */
     common.ctx.send_ttl = 3; /* relay msg 3 times */
     common.ctx.send_rel = true;
@@ -74,7 +73,7 @@ void generic_onoff_client_cb(esp_ble_mesh_generic_client_cb_event_t event, esp_b
         }
         break;
     case ESP_BLE_MESH_GENERIC_CLIENT_SET_STATE_EVT:
-        ESP_LOGI(GEN_ONOFF_TAG, "ESP_BLE_MESH_GENERIC_CLIENT_SET_STATE_EVT");
+        ESP_LOGI(GEN_ONOFF_TAG, "ESP_BLE_MESH_GENERIC_CLIENT_SET_STATE_EVT, addr: 0x%04x", param->params->ctx.addr);
         if (param->params->opcode == ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET) {
             ESP_LOGI(GEN_ONOFF_TAG, "ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET, onoff %d", param->status_cb.onoff_status.present_onoff);
         }

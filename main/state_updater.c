@@ -19,7 +19,7 @@ void update_state(cobra_state_struct_t *cobra_state)
     if (cobra_role_changed) {
         (*cobra_state).group_role = cobra_role;
         cobra_role_changed = false;
-        ESP_LOGE(BLE_QUEUE, "NOW CHANGING ROLE TO: %u", cobra_role);
+        ESP_LOGI(STATE_TAG, "NOW CHANGING ROLE TO: %u", cobra_role);
 
     }
     switch(cobra_state->current_mode)
@@ -34,8 +34,8 @@ void update_state(cobra_state_struct_t *cobra_state)
             if (cobra_state->group_role == role_owner)
             {
                 /*if we're not waiting on anyone to respond, we should be in the passive state*/
-                next_state = state_group_owner_passive;
                 /*if we're waiting on folks to respond to a message, we should be in the active state*/
+                next_state = (msg_received) ? state_group_owner_active : state_group_owner_passive;
             }
             else
             {

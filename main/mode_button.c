@@ -30,7 +30,7 @@ void press_mode_button_long(cobra_state_struct_t *cobra_state)
             /*silence*/
             send_hsl_set_message(RED);
             /*update state to passive*/
-            msg_received = false;
+            update_msg_received(false);
             break;
         default:
             break;

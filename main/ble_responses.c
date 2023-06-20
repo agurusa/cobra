@@ -2,7 +2,7 @@
 #define _BLE_RESPONSES_GUARD
 
 #include "cobra_process.h"
-#include "static_members.c"
+#include "static_members.h"
 
 //TODO: make this a class
 
@@ -27,9 +27,8 @@ cobra_bt_response_t* pop_msg()
 
 void print_msg(cobra_bt_response_t *rsp)
 {
-    esp_ble_mesh_generic_server_cb_param_t * param = rsp->param->server;
     esp_ble_mesh_generic_server_cb_event_t event = (esp_ble_mesh_generic_server_cb_event_t) rsp->event.server;
-    ESP_LOGI(BLE_QUEUE, "msg: %i, next: %s, event: %i, param net idx: 0x%04x", rsp->response, rsp->next == NULL? "NULL" : "not null", event, param->ctx.net_idx);
+    ESP_LOGI(BLE_QUEUE, "msg: %i, next: %s, event: %i", rsp->response, rsp->next == NULL? "NULL" : "not null", event);
 
 };
 
@@ -67,16 +66,19 @@ void process_msg()
     cobra_bt_response_t *rsp = pop_msg();
 
     /*changes to comms mode*/
-    msg_received = true;
+    update_msg_received(true); /*in order for this to work on the listening group's bracelets, the hsl server node cannot be subscribed to the festival group (otherwise this will log as a received message)*/
     switch(rsp->response)
     {
         case message_acknowledged:
+            ESP_LOGE(BLE_QUEUE, "message acknoweldged received!");
+            update_msg_received(false);
             break;
         case message_silenced:
             break;
         case message_snoozed:
             break;
         case message_group_owner:
+            // everything that needs to happen here is taken care of in the state_updater.
             break;
         case message_location_requested:
             break;
@@ -86,7 +88,7 @@ void process_msg()
                 cobra_role = rsp->param->set_val_usr_role;
                 cobra_role_changed = true;
             }
-            msg_received = false;
+            update_msg_received(false);
             break;
         default:
             break;

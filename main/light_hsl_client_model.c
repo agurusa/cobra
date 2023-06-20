@@ -5,7 +5,7 @@
 
 #include "config_server.c"
 #include "cobra_colors.h"
-#include "static_members.c"
+#include "static_members.h"
 
 const char* HSL_CLIENT_TAG = "HSL_CLIENT";
 static esp_ble_mesh_client_t hsl_client;

@@ -13,7 +13,7 @@ void generic_server_cb (esp_ble_mesh_generic_server_cb_event_t event,
     uint32_t opcode = param->ctx.recv_op;
     switch (event) {
     case ESP_BLE_MESH_GENERIC_SERVER_STATE_CHANGE_EVT:
-        ESP_LOGE(COMMON_SERV_TAG, "STATE CHANGE EVENT");
+        ESP_LOGI(COMMON_SERV_TAG, "STATE CHANGE EVENT");
         if (opcode == ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET || 
             opcode == ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET_UNACK){
             handle_generic_onoff_state_change(event, param);
@@ -24,11 +24,11 @@ void generic_server_cb (esp_ble_mesh_generic_server_cb_event_t event,
                 }
         break;
     case ESP_BLE_MESH_GENERIC_SERVER_RECV_GET_MSG_EVT:
-        ESP_LOGE(COMMON_SERV_TAG, "GET EVENT");
+        ESP_LOGI(COMMON_SERV_TAG, "GET EVENT");
         //TODO
         break;
     case ESP_BLE_MESH_GENERIC_SERVER_RECV_SET_MSG_EVT:
-        ESP_LOGE(COMMON_SERV_TAG, "SET EVENT");
+        ESP_LOGI(COMMON_SERV_TAG, "SET EVENT");
         if (opcode == ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET || 
             opcode == ESP_BLE_MESH_MODEL_OP_GEN_ONOFF_SET_UNACK){
             handle_generic_onoff_state_change(event, param);

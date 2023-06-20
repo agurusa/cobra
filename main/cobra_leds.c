@@ -8,7 +8,7 @@
 
 #include "led_strip.h"
 #include "cobra_led_struct.h"
-#include "static_members.c"
+#include "static_members.h"
 #include "state_enum.h"
 
 /* For when we start a background task that blinks the LED */
@@ -126,8 +126,10 @@ esp_err_t fillBodyLeds(cobra_state_t state, led_strip_handle_t strip)
             err = led_strip_set_pixel(strip, COMMS_LED_INDEX, state*10,state*10,state*20);
             break;
         case state_group_owner_active:
+            err = led_strip_set_pixel(strip, COMMS_LED_INDEX, 0, 0, 100);
             break;
         case state_group_owner_passive:
+            err = led_strip_set_pixel(strip, COMMS_LED_INDEX, 0, 100, 0);
             break;
         case state_listener_passive:
             err = led_strip_set_pixel(strip, COMMS_LED_INDEX, 0, 100, 0);

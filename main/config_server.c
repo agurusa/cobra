@@ -4,7 +4,7 @@
 #include "esp_ble_mesh_config_model_api.h"
 #include "config_struct.h"
 #include "nvs.c"
-#include "static_members.c"
+#include "static_members.h"
 
 const uint16_t NOT_VENDOR_MODEL = 0xFFFF; /* See ESP-IDF API reference for company ID */
 const char* SERVER_TAG = "CONFIG_SERVER"; /* logging*/
