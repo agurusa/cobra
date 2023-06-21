@@ -33,7 +33,9 @@ void press_comms_button_short(cobra_state_struct_t *cobra_state)
             /*send out message to all group listeners*/
             /*generic_onoff_client model set tx*/
             send_gen_onoff_set();
-            /*state updated to active on ESP_BLE_MESH_GENERIC_CLIENT_PUBLISH_EVT*/
+            cobra_colors_t off = {0,0,0};
+            update_all_usr_colors(off);
+            update_all_usr_msgs_received(false);
             break;
         case state_listener_active:
             /*generic_onoff_server model set rx event would have put us in this state*/
