@@ -71,7 +71,8 @@ void process_msg()
     switch(rsp->response)
     {
         case message_acknowledged:
-            ESP_LOGE(BLE_QUEUE, "message acknoweldged received!");
+            ESP_LOGI(BLE_QUEUE, "message acknoweldged received!");
+            update_usr_msgs_received(rsp->param->recv_addr, true);
             /*get color from rsp param*/
             //TODO: some kind of memory corruption is potentially cuasing the lightness value here to be inconsistent. (280 when it should be 20)
             ESP_LOGE(BLE_QUEUE, "rxn color is: lightness %u, hue %u, saturation %u", rsp->param->set_val_comms_color.lightness, rsp->param->set_val_comms_color.hue, rsp->param->set_val_comms_color.saturation);

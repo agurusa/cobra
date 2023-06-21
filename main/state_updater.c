@@ -35,7 +35,7 @@ void update_state(cobra_state_struct_t *cobra_state)
             {
                 /*if we're not waiting on anyone to respond, we should be in the passive state*/
                 /*if we're waiting on folks to respond to a message, we should be in the active state*/
-                next_state = (msg_received) ? state_group_owner_active : state_group_owner_passive;
+                next_state = (all_msgs_received()) ? state_group_owner_passive : state_group_owner_active;
             }
             else
             {
