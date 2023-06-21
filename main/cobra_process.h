@@ -54,6 +54,8 @@ typedef enum {
 
 typedef union {
     cobra_role_t set_val_usr_role;
+    cobra_colors_t set_val_comms_color;
+    uint16_t recv_addr;
 }ble_mesh_param_t;
 
 typedef union{

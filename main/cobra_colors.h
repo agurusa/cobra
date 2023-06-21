@@ -7,16 +7,8 @@ typedef struct cobra_colors_t{
     uint16_t saturation;
 }cobra_colors_t;
 
-//TODO
-const cobra_colors_t RED = {
-    50,
-    50,
-    50
-};
-
-//TODO
-const cobra_colors_t YELLOW = {
-    80,
-    80,
-    80
-};
+typedef struct cobra_colors_rgb_t{
+    uint16_t red;
+    uint16_t green;
+    uint16_t blue;
+}cobra_colors_rgb_t;
