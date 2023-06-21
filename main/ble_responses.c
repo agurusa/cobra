@@ -2,6 +2,7 @@
 #define _BLE_RESPONSES_GUARD
 
 #include "cobra_process.h"
+#include "cobra_leds.c"
 #include "static_members.h"
 
 //TODO: make this a class
@@ -71,6 +72,11 @@ void process_msg()
     {
         case message_acknowledged:
             ESP_LOGE(BLE_QUEUE, "message acknoweldged received!");
+            /*get color from rsp param*/
+            //TODO: some kind of memory corruption is potentially cuasing the lightness value here to be inconsistent. (280 when it should be 20)
+            ESP_LOGE(BLE_QUEUE, "rxn color is: lightness %u, hue %u, saturation %u", rsp->param->set_val_comms_color.lightness, rsp->param->set_val_comms_color.hue, rsp->param->set_val_comms_color.saturation);
+            /*update the LED index of the associated user to the color received*/
+            update_usr_color(rsp->param->recv_addr, rsp->param->set_val_comms_color);
             update_msg_received(false);
             break;
         case message_silenced:
@@ -93,6 +99,7 @@ void process_msg()
         default:
             break;
     }
+    free(rsp->param);
     free(rsp);
 }
 
