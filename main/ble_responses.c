@@ -72,12 +72,12 @@ void process_msg()
     {
         case message_acknowledged:
             ESP_LOGI(BLE_QUEUE, "message acknoweldged received!");
-            update_usr_msgs_received(rsp->param->recv_addr, true);
+            update_usr_msgs_received(rsp->param->set_val_comms_color.recv_addr, true);
             /*get color from rsp param*/
             //TODO: some kind of memory corruption is potentially cuasing the lightness value here to be inconsistent. (280 when it should be 20)
             ESP_LOGE(BLE_QUEUE, "rxn color is: lightness %u, hue %u, saturation %u", rsp->param->set_val_comms_color.lightness, rsp->param->set_val_comms_color.hue, rsp->param->set_val_comms_color.saturation);
             /*update the LED index of the associated user to the color received*/
-            update_usr_color(rsp->param->recv_addr, rsp->param->set_val_comms_color);
+            update_usr_color(rsp->param->set_val_comms_color.recv_addr, rsp->param->set_val_comms_color);
             update_msg_received(false);
             break;
         case message_silenced:
@@ -89,11 +89,17 @@ void process_msg()
             break;
         case message_location_requested:
             break;
-        case message_from_phone_app:
+        case message_role_changed:
             //change the role of the bracelet to indicate setting sent by phone app
             if (rsp->param->set_val_usr_role != cobra_role){
                 cobra_role = rsp->param->set_val_usr_role;
                 cobra_role_changed = true;
+            }
+            update_msg_received(false);
+            break;
+        case message_usr_addr:
+            if (get_usr_addr(rsp->param->set_val_cobra_usr.recv_index)!= rsp->param->set_val_cobra_usr.recv_addr){
+                update_usr_addrs(rsp->param->set_val_cobra_usr.recv_addr, rsp->param->set_val_cobra_usr.recv_index);
             }
             update_msg_received(false);
             break;

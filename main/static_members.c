@@ -1,4 +1,7 @@
 #include <stdbool.h>
+
+#include "esp_log.h"
+
 #include "static_members.h"
 #include "cobra_roles.h"
 #include "cobra_colors.h"
@@ -67,4 +70,13 @@ bool all_msgs_received(){
         }
     }
     return true;
+}
+
+void update_usr_addrs(uint16_t usr_addr, int index){
+    usr_addrs[index] = usr_addr;
+    ESP_LOGE("debug", "UPDATING USR ADDR at %i to %u", index, usr_addrs[index]);
+}
+
+uint16_t get_usr_addr(int index){
+    return usr_addrs[index];
 }

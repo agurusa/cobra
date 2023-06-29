@@ -30,3 +30,5 @@ extern void update_all_usr_colors(cobra_colors_t color);
 extern void update_usr_msgs_received(uint16_t usr_addr, bool rcvd);
 extern void update_all_usr_msgs_received(bool rcvd);
 extern bool all_msgs_received();
+extern void update_usr_addrs(uint16_t usr_addr, int index);
+extern uint16_t get_usr_addr(int index);

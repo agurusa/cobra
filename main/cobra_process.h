@@ -49,13 +49,19 @@ typedef enum {
     message_snoozed,
     message_group_owner,
     message_location_requested,
-    message_from_phone_app
+    message_role_changed,
+    message_usr_addr,
 }cobra_bt_message_t;
+
+typedef struct cobra_usr_t{
+    uint16_t recv_addr;
+    int recv_index;
+}cobra_usr_t;
 
 typedef union {
     cobra_role_t set_val_usr_role;
     cobra_colors_t set_val_comms_color;
-    uint16_t recv_addr;
+    cobra_usr_t set_val_cobra_usr;
 }ble_mesh_param_t;
 
 typedef union{

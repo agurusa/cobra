@@ -46,7 +46,7 @@ static esp_ble_mesh_light_hsl_setup_srv_t hsl_setup_server = {
     .state = &hsl_state,
 };
 
-void handle_hsl_set_message(esp_ble_mesh_lighting_server_cb_event_t event, uint16_t recv_addr, cobra_colors_t color, cobra_bt_message_t msg_rsp)
+void handle_hsl_set_message(esp_ble_mesh_lighting_server_cb_event_t event, cobra_colors_t color, cobra_bt_message_t msg_rsp)
 {
     cobra_bt_response_t *msg = calloc(1, sizeof(cobra_bt_response_t));
     msg->response = msg_rsp;
@@ -54,7 +54,6 @@ void handle_hsl_set_message(esp_ble_mesh_lighting_server_cb_event_t event, uint1
     msg->event.hsl_srv = event;
     msg->param = calloc(1, sizeof(ble_mesh_param_t));
     msg->param->set_val_comms_color = color;
-    msg->param->recv_addr = recv_addr;
     push_msg(msg);
     cobra_process_t proc = process_message_received;
     cobra_process_info_t proc_info = {
@@ -76,20 +75,20 @@ void hsl_server_cb(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_l
     cobra_colors_t color = {
         param->value.set.hsl.lightness,
         param->value.set.hsl.hue,
-        param->value.set.hsl.saturation
+        param->value.set.hsl.saturation,
+        param->ctx.addr
     };
-    uint16_t recv_addr = param->ctx.addr;
     //if the color will be set to red, we know we have a silence message
     if (color.lightness == RED.lightness && color.hue == RED.hue){
-        handle_hsl_set_message(event, recv_addr, color, message_silenced);
+        handle_hsl_set_message(event, color, message_silenced);
     }
     //if the color will be set to yellow, we received a snooze
     else if (color.lightness == YELLOW.lightness && color.hue == YELLOW.hue){
-        handle_hsl_set_message(event, recv_addr, color, message_snoozed);
+        handle_hsl_set_message(event, color, message_snoozed);
     }
     //if the color is anything else, we received an acknolwedge.
     else {
-        handle_hsl_set_message(event, recv_addr, color, message_acknowledged);
+        handle_hsl_set_message(event, color, message_acknowledged);
     }
 };
 
