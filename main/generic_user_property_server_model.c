@@ -35,7 +35,7 @@ static esp_ble_mesh_gen_user_prop_srv_t prop_server = {
 
 ESP_BLE_MESH_MODEL_PUB_DEFINE(property_serv_pub, 2+3, ROLE_NODE);
 
-
+// TODO: this is way too slow! if we get messages very quickly, this will not work!!
 void handle_usr_prop_state_change(esp_ble_mesh_generic_server_cb_event_t event,
                             esp_ble_mesh_generic_server_cb_param_t *param){
     ESP_LOGI(GEN_PROP_SERVER_TAG, "usr prop state change");
