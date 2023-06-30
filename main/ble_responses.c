@@ -98,8 +98,10 @@ void process_msg()
             update_msg_received(false);
             break;
         case message_usr_addr:
-            if (get_usr_addr(rsp->param->set_val_cobra_usr.recv_index)!= rsp->param->set_val_cobra_usr.recv_addr){
-                update_usr_addrs(rsp->param->set_val_cobra_usr.recv_addr, rsp->param->set_val_cobra_usr.recv_index);
+            uint16_t addr = rsp->param->set_val_cobra_usr.recv_addr;
+            int index = rsp->param->set_val_cobra_usr.recv_index;
+            if (get_usr_addr(index)!= addr){
+                update_usr_addrs(addr, index);
             }
             update_msg_received(false);
             break;

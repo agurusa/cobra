@@ -80,6 +80,8 @@ void app_main(void)
     
     esp_err_t err = ESP_OK;
 
+    ESP_LOGE("debug", "size of led_struct_t: %lu, sizeof cobra_process_node_t, %lu, sizeof cobra_bt_response_t %lu, sizeof cobra_colors_t %lu", sizeof(led_struct_t), sizeof(cobra_process_node_t), sizeof(cobra_bt_response_t), sizeof(cobra_colors_t));
+
     /* BUTTON TIMER */
     timer_info_t *timer_info = (timer_info_t*)calloc(1, sizeof(timer_info_t));
 
