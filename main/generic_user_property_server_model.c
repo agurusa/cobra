@@ -35,7 +35,6 @@ static esp_ble_mesh_gen_user_prop_srv_t prop_server = {
 
 ESP_BLE_MESH_MODEL_PUB_DEFINE(property_serv_pub, 2+3, ROLE_NODE);
 
-// TODO: this is way too slow! if we get messages very quickly, this will not work!!
 void handle_usr_prop_state_change(esp_ble_mesh_generic_server_cb_event_t event,
                             esp_ble_mesh_generic_server_cb_param_t *param){
     ESP_LOGI(GEN_PROP_SERVER_TAG, "usr prop state change");
@@ -72,25 +71,9 @@ void handle_usr_prop_state_change(esp_ble_mesh_generic_server_cb_event_t event,
             return;
         }
         msg->response = message_usr_addr;
-        uint8_t addr_high_byte = 0;
-        uint8_t addr_low_byte = 0;
-        uint8_t index = 0;
-        for(int i = 0; i < len; i++) {
-            uint8_t val = *data;
-            if(i == 0){
-                addr_high_byte = *data;
-            }
-            else if(i == 1){
-                addr_low_byte = *data;
-            }
-            else if (i==2){
-                index = *data;
-            }
-            data++;
-        }
         cobra_usr_t usr = {
-            ((uint16_t)addr_high_byte << 8) | addr_low_byte,
-            index
+            ((uint16_t)data[0] << 8) | data[1],
+            data[2]
         };
         msg->param->set_val_cobra_usr = usr;
     }

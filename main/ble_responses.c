@@ -46,7 +46,6 @@ void print_msg_queue(cobra_message_queue_t queue)
 void push_msg(cobra_bt_response_t *rsp)
 {
 
-    // print_msg(rsp); TODO: figure out why this is crashing (dangling pointer?)
     if(empty())
     {
         rxn_messages.first = rsp;

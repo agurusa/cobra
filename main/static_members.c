@@ -94,7 +94,7 @@ bool all_msgs_received(){
 
 void update_usr_addrs(uint16_t usr_addr, int index){
     usr_addrs[index] = usr_addr;
-    ESP_LOGE("debug", "UPDATING USR ADDR at %i to %u", index, usr_addrs[index]);
+    ESP_LOGE("debug", "UPDATING USR ADDR at %i to 0x%04x", index, usr_addrs[index]);
 }
 
 uint16_t get_usr_addr(int index){
