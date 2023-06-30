@@ -27,7 +27,6 @@ typedef enum{
 typedef struct {
     cobra_process_t process;
     cobra_priority_t priority;
-    cobra_state_struct_t cs; /* TODO: get rid of this? */
     
 }cobra_process_info_t;
 

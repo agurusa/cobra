@@ -7,24 +7,27 @@
 
 const char * MODE_TAG = "MODE";
 
-void update_mode(cobra_mode_t *current_mode)
+void update_mode()
 {
-    if (*current_mode < num_of_modes-1) {
-        *current_mode = *current_mode + 1;
+    cobra_state_struct_t cobra_state = get_cobra_state();
+    cobra_mode_t current_mode = cobra_state.current_mode;
+    if (current_mode < num_of_modes-1) {
+        set_current_mode(current_mode + 1);
     }
     else{
-        *current_mode = 0;
+        set_current_mode(0);
     }
 }
 
-void press_mode_button_short(cobra_state_struct_t *cobra_state)
+void press_mode_button_short()
 {
-    update_mode(&cobra_state->current_mode);
+    update_mode();
 }
 
-void press_mode_button_long(cobra_state_struct_t *cobra_state)
+void press_mode_button_long()
 {
-    switch(cobra_state->current_state)
+    cobra_state_struct_t cobra_state = get_cobra_state();
+    switch(cobra_state.current_state)
     {
         case state_listener_active:
             /*silence*/

@@ -9,9 +9,10 @@
 const char * COMMS_TAG = "COMMS";
 
 
-void press_comms_button_long(cobra_state_struct_t *cobra_state)
+void press_comms_button_long()
 {
-    switch(cobra_state->current_state)
+    cobra_state_struct_t cobra_state = get_cobra_state();
+    switch(cobra_state.current_state)
     {
         case state_listener_active:
             /*snooze (remind user to respond in 5 min)*/
@@ -25,9 +26,10 @@ void press_comms_button_long(cobra_state_struct_t *cobra_state)
     }
 }
 
-void press_comms_button_short(cobra_state_struct_t *cobra_state)
+void press_comms_button_short()
 {
-    switch(cobra_state->current_state)
+    cobra_state_struct_t cobra_state = get_cobra_state();
+    switch(cobra_state.current_state)
     {
         case state_group_owner_passive:
             /*send out message to all group listeners*/
@@ -42,7 +44,7 @@ void press_comms_button_short(cobra_state_struct_t *cobra_state)
             /*acknowledge*/
             ESP_LOGE(COMMS_TAG, "acknowleding");
             /*light_hsl_client model set tx*/
-            send_hsl_set_message(cobra_state->user_color);
+            send_hsl_set_message(cobra_state.user_color);
             /*update state to passive*/
             update_msg_received(false);
             break;

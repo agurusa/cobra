@@ -5,13 +5,33 @@
 #include "static_members.h"
 #include "cobra_roles.h"
 #include "cobra_colors.h"
+#include "state_enum.h"
 
 bool msg_received = false;
-cobra_role_t cobra_role = role_listener;
-bool cobra_role_changed = false;
 cobra_colors_t usr_colors[NUM_LEDS] = {0};
 uint16_t usr_addrs[NUM_LEDS] = {0};
 bool usr_msgs_received[NUM_LEDS] = {true, true, true, true, true, true, true, true, true, true};
+
+cobra_colors_t user_color = {
+    .lightness = USER_LIGHTNESS,
+    .hue = USER_HUE,
+    .saturation = USER_SATURATION,
+};
+
+const cobra_role_t startup_role = role_listener;
+const cobra_colors_t startup_color = {
+    .lightness = USER_LIGHTNESS,
+    .hue = USER_HUE,
+    .saturation = USER_SATURATION,
+};
+
+cobra_state_struct_t cobra_state  = {
+    .current_state = state_startup,
+    .next_state = state_startup,
+    .group_role = startup_role,
+    .current_mode = mode_music,
+    .user_color = startup_color
+};
 
 void update_msg_received(bool val){
     msg_received = val;
@@ -79,4 +99,38 @@ void update_usr_addrs(uint16_t usr_addr, int index){
 
 uint16_t get_usr_addr(int index){
     return usr_addrs[index];
+}
+
+extern cobra_state_struct_t get_cobra_state(){
+    return cobra_state;
+}
+extern void set_cobra_state_struct(cobra_state_struct_t state){
+    cobra_state.current_state = state.current_state;
+    cobra_state.next_state = state.next_state;
+    cobra_state.group_role = state.group_role;
+    cobra_state.current_mode = state.current_mode;
+    cobra_state.user_color = state.user_color;
+}
+
+extern void set_current_mode(cobra_mode_t mode){
+    cobra_state.current_mode = mode;
+}
+
+extern void set_next_state(cobra_state_t next_state) {
+    cobra_state.next_state = next_state;
+}
+
+extern void set_current_state(cobra_state_t current_state)
+{
+    cobra_state.current_state = current_state;
+}
+
+void set_cobra_group_role(cobra_role_t role)
+{
+    cobra_state.group_role = role;
+}
+
+extern cobra_role_t get_cobra_role()
+{
+    return cobra_state.group_role;
 }

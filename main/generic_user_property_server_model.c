@@ -35,7 +35,7 @@ static esp_ble_mesh_gen_user_prop_srv_t prop_server = {
 
 ESP_BLE_MESH_MODEL_PUB_DEFINE(property_serv_pub, 2+3, ROLE_NODE);
 
-
+// TODO: this is way too slow! if we get messages very quickly, this will not work!!
 void handle_usr_prop_state_change(esp_ble_mesh_generic_server_cb_event_t event,
                             esp_ble_mesh_generic_server_cb_param_t *param){
     ESP_LOGI(GEN_PROP_SERVER_TAG, "usr prop state change");
@@ -46,8 +46,8 @@ void handle_usr_prop_state_change(esp_ble_mesh_generic_server_cb_event_t event,
 
     uint16_t property_id = param->value.set.user_property.property_id;
     uint16_t len = param->value.set.user_property.property_value->len;
-    ESP_LOGE(GEN_PROP_SERVER_TAG, "PROPERTY ID: 0x%04x, DATA LENGTH: %u", property_id, len);
     uint8_t * data = (uint8_t *)net_buf_simple_pull_mem(param->value.set.user_property.property_value, len);
+    ESP_LOGI(GEN_PROP_SERVER_TAG, "PROPERTY ID: 0x%04x, DATA LENGTH: %u, DATA: 0x%02x", property_id, len, *data);
     if(property_id == 0x1111){
         msg->response = message_role_changed;
         if (*data == 0x01){
