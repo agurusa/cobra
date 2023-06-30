@@ -9,6 +9,7 @@
 #include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+// #include "freertos/semphr.h"
 
 #include "led_strip.h"
 #include "cobra_led_struct.h"
@@ -16,12 +17,13 @@
 #include "state_enum.h"
 
 /* For when we start a background task that blinks the LED */
+// SemaphoreHandle_t xSemaphore = NULL;
 static int led_on = 0;
 static TaskHandle_t led_blink_handle = NULL;
 
 const char * LED_TAG = "LED";
 
-led_strip_handle_t led_strip;
+static led_strip_handle_t led_strip;
 
 const int LED_GPIO = GPIO_NUM_5;
 const int COMMS_LED_INDEX = 1;
@@ -84,15 +86,16 @@ void blink_led(void* args)
 {
 
     led_struct_t* led_args = (led_struct_t*) args;
-    while(1) {
+    // while(xSemaphoreTake(xSemaphore, portMAX_DELAY)) {
+    while(1){
         if (led_on) {
-            led_strip_set_pixel(led_args->strip, led_args->index, led_args->red, led_args->green, led_args->blue);
+            led_strip_set_pixel(led_strip, led_args->index, led_args->red, led_args->green, led_args->blue);
         }
         else {
-            led_strip_set_pixel(led_args->strip, led_args->index, 0,0,0);
+            led_strip_set_pixel(led_strip, led_args->index, 0,0,0);
         }
         led_on = !led_on;
-        led_strip_refresh(led_args->strip);
+        led_strip_refresh(led_strip);
         vTaskDelay(10);
     }
 
@@ -172,11 +175,14 @@ esp_err_t led_strip_fill_with_solid(led_strip_handle_t strip, uint32_t red, uint
 esp_err_t fillBodyLeds(cobra_state_t state, led_strip_handle_t strip)
 // fill body LEDs with the correct color combo
 {   
+    
     if(state!=state_listener_active && state!=state_timer)
     {
+        // xSemaphoreTake(xSemaphore, portMAX_DELAY);
         // Use the handle to delete the task.
         if( led_blink_handle != NULL )
         {
+            // vSemaphoreDelete(xSemaphore);
             vTaskDelete( led_blink_handle );
             led_blink_handle = NULL;
             free(led_struct);
@@ -212,14 +218,17 @@ esp_err_t fillBodyLeds(cobra_state_t state, led_strip_handle_t strip)
             err = led_strip_fill_with_solid(strip,0, 100, 0);
             break;
         case state_listener_active:
+            // if (xSemaphore == NULL){
+            //     xSemaphore = xSemaphoreCreateMutex();
+            // }
             led_struct_t *led_args = calloc(1, sizeof(led_struct_t));
-            led_args->strip = strip;
             led_args->index = COMMS_LED_INDEX;
             led_args->red = 100;
             led_args->green = 0;
             led_args->blue = 0;
             led_struct = led_args;
             xTaskCreate(blink_led, "BLINK_TASK", STACK_SIZE, led_struct, tskIDLE_PRIORITY, &led_blink_handle);
+            // xSemaphoreGive( xSemaphore );
             break;
         default:
             break;
