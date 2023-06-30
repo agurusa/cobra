@@ -91,9 +91,11 @@ void process_msg()
             break;
         case message_role_changed:
             //change the role of the bracelet to indicate setting sent by phone app
-            if (rsp->param->set_val_usr_role != cobra_role){
-                cobra_role = rsp->param->set_val_usr_role;
-                cobra_role_changed = true;
+            cobra_role_t current_role = get_cobra_role();
+            if (rsp->param->set_val_usr_role != current_role){
+                set_cobra_group_role(rsp->param->set_val_usr_role);
+                ESP_LOGI(BLE_QUEUE, "NOW CHANGING ROLE TO: %u", get_cobra_role());
+
             }
             update_msg_received(false);
             break;

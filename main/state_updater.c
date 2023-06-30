@@ -18,12 +18,6 @@ void update_state()
     cobra_state_t next_state = current_state;
     cobra_mode_t next_mode = msg_received? mode_comms : current_mode; 
     set_current_mode(next_mode);
-    if (cobra_role_changed) {
-        cobra_state.group_role = cobra_role;
-        cobra_role_changed = false;
-        ESP_LOGI(STATE_TAG, "NOW CHANGING ROLE TO: %u", cobra_role);
-
-    }
     switch(cobra_state.current_mode)
     {
         case mode_music:
@@ -100,7 +94,7 @@ void respond_to_state_change(void * args)
             fillBodyLeds(next_state, led_strip);
             // update the current state to reflect the new state
             set_current_state(next_state);
-            ESP_LOGE(STATE_TAG, "current state now: %i", state.current_state);
+            ESP_LOGE(STATE_TAG, "current state now: %i", get_cobra_state().current_state);
 
         }
         vTaskDelay(1);

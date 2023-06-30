@@ -21,8 +21,6 @@
 
 extern cobra_state_struct_t cobra_state;
 extern bool msg_received;
-extern cobra_role_t cobra_role;
-extern bool cobra_role_changed;
 extern void update_msg_received(bool val);
 
 extern const cobra_colors_t RED;
@@ -42,6 +40,6 @@ extern cobra_state_struct_t get_cobra_state();
 extern void set_cobra_state_struct(cobra_state_struct_t state);
 extern void set_current_mode(cobra_mode_t mode);
 extern void set_next_state(cobra_state_t next_state);
-extern void set_current_state(
-    cobra_state_t current_state
-);
+extern void set_current_state(cobra_state_t current_state);
+extern void set_cobra_group_role(cobra_role_t role);
+extern cobra_role_t get_cobra_role();

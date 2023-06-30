@@ -197,6 +197,9 @@ esp_err_t fillBodyLeds(cobra_state_t state, led_strip_handle_t strip)
         case state_startup:
             err = led_strip_fill_with_solid(strip,state*10,state*10,state*20);
             break;
+        case state_locator:
+            err = led_strip_fill_with_solid(strip,state*10,state*10,state*20);
+            break;
         case state_group_owner_active:
             err = led_strip_set_pixel(strip, COMMS_LED_INDEX, 0, 0, 100);
             led_strip_set_usr_colors(strip);

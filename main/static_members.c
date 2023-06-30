@@ -8,8 +8,6 @@
 #include "state_enum.h"
 
 bool msg_received = false;
-cobra_role_t cobra_role = role_listener;
-bool cobra_role_changed = false;
 cobra_colors_t usr_colors[NUM_LEDS] = {0};
 uint16_t usr_addrs[NUM_LEDS] = {0};
 bool usr_msgs_received[NUM_LEDS] = {true, true, true, true, true, true, true, true, true, true};
@@ -122,8 +120,17 @@ extern void set_next_state(cobra_state_t next_state) {
     cobra_state.next_state = next_state;
 }
 
-extern void set_current_state(
-    cobra_state_t current_state
-) {
+extern void set_current_state(cobra_state_t current_state)
+{
     cobra_state.current_state = current_state;
+}
+
+void set_cobra_group_role(cobra_role_t role)
+{
+    cobra_state.group_role = role;
+}
+
+extern cobra_role_t get_cobra_role()
+{
+    return cobra_state.group_role;
 }
