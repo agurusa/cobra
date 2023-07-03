@@ -8,9 +8,10 @@
 #include "state_enum.h"
 
 bool msg_received = false;
-cobra_colors_t usr_colors[NUM_LEDS] = {0};
+cobra_colors_t usr_colors[NUM_LEDS] = {0}; //TODO: cobra_colors_t also contains recv_addr. we could use that to update the correct index.
 uint16_t usr_addrs[NUM_LEDS] = {0};
 bool usr_msgs_received[NUM_LEDS] = {true, true, true, true, true, true, true, true, true, true};
+const char * STATIC_MEM_TAG = "EXTERN";
 
 cobra_colors_t user_color = {
     .lightness = USER_LIGHTNESS,
@@ -33,6 +34,10 @@ cobra_state_struct_t cobra_state  = {
     .user_color = startup_color
 };
 
+bool get_msg_received(){
+    return msg_received;
+}
+
 void update_msg_received(bool val){
     msg_received = val;
 }
@@ -53,12 +58,20 @@ const cobra_colors_t YELLOW = {
 
 int get_index_for_usr_addr(uint16_t usr_addr)
 {
-    //TODO: Get the index for the usr addr
-    return FIRST_USR_LED_INDEX;
+    for(int i = FIRST_USR_LED_INDEX; i < FIRST_USR_LED_INDEX+NUM_LISTENERS_IN_GROUP; i++){
+        if(usr_addrs[i] == usr_addr){
+            return i;
+        }
+    }
+    ESP_LOGE(STATIC_MEM_TAG, "Unknown usr address: 0x%04x", usr_addr);
+    return NUM_LEDS; //consuming func responsible for understanding that this means the usr wasn't found.
 }
 
-void update_usr_colors(uint16_t usr_addr, cobra_colors_t color) {
-    int usr_addr_index = get_index_for_usr_addr(usr_addr);
+void update_usr_colors(cobra_colors_t color) {
+    int usr_addr_index = get_index_for_usr_addr(color.recv_addr);
+    if (usr_addr_index == NUM_LEDS){ //usr not found
+        return;
+    }
     usr_colors[usr_addr_index] = color;
 }
 
@@ -74,6 +87,9 @@ void update_all_usr_colors(cobra_colors_t color) {
 
 void update_usr_msgs_received(uint16_t usr_addr, bool rcvd){
     int usr_addr_index = get_index_for_usr_addr(usr_addr);
+    if (usr_addr_index == NUM_LEDS){ //usr not found
+        return;
+    }
     usr_msgs_received[usr_addr_index] = rcvd;
 }
 
@@ -94,7 +110,7 @@ bool all_msgs_received(){
 
 void update_usr_addrs(uint16_t usr_addr, int index){
     usr_addrs[index] = usr_addr;
-    ESP_LOGE("debug", "UPDATING USR ADDR at %i to 0x%04x", index, usr_addrs[index]);
+    ESP_LOGI(STATIC_MEM_TAG, "Updating usr addr at %i to 0x%04x", index, usr_addrs[index]);
 }
 
 uint16_t get_usr_addr(int index){
