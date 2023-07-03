@@ -5,6 +5,7 @@ typedef struct cobra_colors_t{
     uint16_t lightness;
     uint16_t hue;
     uint16_t saturation;
+    uint16_t recv_addr;
 }cobra_colors_t;
 
 typedef struct cobra_colors_rgb_t{

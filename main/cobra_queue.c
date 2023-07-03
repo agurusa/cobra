@@ -44,6 +44,7 @@ void print_queue(){
     {
         if (node->info.process >= num_of_processes || node->info.priority >=num_of_priorities) {
             ESP_LOGE(QUEUE_TAG, "%i, %i", node->info.process, node->info.priority);
+            break;
         }
         else {
             ESP_LOGI(QUEUE_TAG, "%i, %i", node->info.process, node->info.priority);
@@ -82,22 +83,22 @@ void add_process(cobra_process_info_t info)
     print_queue();
 }
 
-void process_node(cobra_process_node_t node, cobra_state_struct_t *cobra_state)
+void process_node(cobra_process_node_t *node)
 {   
-    cobra_process_info_t process_info = node.info;
+    cobra_process_info_t process_info = node->info;
     switch(process_info.process)
     {
         case process_mode_button_press_long:
-            press_mode_button_long(cobra_state);
+            press_mode_button_long();
             break;
         case process_mode_button_press_short:
-            press_mode_button_short(cobra_state);
+            press_mode_button_short();
             break;
         case process_comms_button_press_long:
-            press_comms_button_long(cobra_state);
+            press_comms_button_long();
             break;
         case process_comms_button_press_short:
-            press_comms_button_short(cobra_state);
+            press_comms_button_short();
             break;
         case process_alarm_went_off:
             break;
@@ -115,14 +116,13 @@ void pop_process(void *args)
 /* pop node off the queue for processing*/
 {
     while(1) {
-        cobra_state_struct_t *cobra_state = (cobra_state_struct_t*) args;
         cobra_process_node_t *node = cobra_queue.first;
         if (node!=NULL) {
             cobra_queue.first = node->next;
-            process_node(*node, cobra_state);
+            process_node(node);
+            // print_queue();
             free(node);
-            cobra_queue.size--;
-            print_queue();
+            cobra_queue.size --;
         }
         vTaskDelay(1);
     }
