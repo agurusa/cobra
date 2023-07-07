@@ -7,6 +7,7 @@
 #include "cobra_colors.h"
 #include "state_enum.h"
 
+QueueHandle_t bleMessageQueue = NULL;
 bool msg_received = false;
 cobra_colors_t usr_colors[NUM_LEDS] = {0}; //TODO: cobra_colors_t also contains recv_addr. we could use that to update the correct index.
 uint16_t usr_addrs[NUM_LEDS] = {0};

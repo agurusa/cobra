@@ -27,6 +27,7 @@ const char * TAG = "APP";
 const uint16_t NO_DESCRIPTOR = 0; /* used for the Loc field in elements*/
 
 
+
 esp_ble_mesh_model_t root_models[] = {
     ESP_BLE_MESH_MODEL_CFG_SRV(&config_server),
     ESP_BLE_MESH_MODEL_HEALTH_SRV(&health_server, &health_pub),
@@ -61,6 +62,11 @@ void print_state(cobra_state_struct_t state)
 void app_main(void)
 {   
     
+    bleMessageQueue = xQueueCreate(10, sizeof(struct cobra_bt_response_t*));
+    if(bleMessageQueue == 0){
+        ESP_LOGE(TAG, "BLE MESSAGE QUEUE could not be created!!");
+    }
+
     esp_err_t err = ESP_OK;
 
     ESP_LOGE("debug", "size of led_struct_t: %lu, sizeof cobra_process_node_t, %lu, sizeof cobra_bt_response_t %lu, sizeof cobra_colors_t %lu", sizeof(led_struct_t), sizeof(cobra_process_node_t), sizeof(cobra_bt_response_t), sizeof(cobra_colors_t));

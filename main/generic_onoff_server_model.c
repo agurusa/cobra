@@ -26,12 +26,25 @@ ESP_BLE_MESH_MODEL_PUB_DEFINE(onoff_serv_pub, 2+3, ROLE_NODE);
 void handle_generic_onoff_state_change(esp_ble_mesh_generic_server_cb_event_t event,
                             esp_ble_mesh_generic_server_cb_param_t *param){
     ESP_LOGI(GEN_ONOFF_SERVER_TAG, "on off state change");
-    cobra_bt_response_t *msg = calloc(1, sizeof(cobra_bt_response_t));
+    const TickType_t xBlockTime = pdMS_TO_TICKS( 200 );
+    cobra_bt_response_t *msg = pvPortMalloc(sizeof(cobra_bt_response_t)); // passing by reference because cobra_bt_response_t is pretty large
+    if (msg == NULL) {
+        ESP_LOGE(GEN_ONOFF_SERVER_TAG, "Memory allocation failed");
+        return;
+    }
     msg->response = message_group_owner;
-    msg->next = NULL;
     msg->event.server = event;
-    msg->param = calloc(1, sizeof(ble_mesh_param_t));
-    push_msg(msg);
+    msg->param = pvPortMalloc(sizeof(ble_mesh_param_t));
+    if (msg->param == NULL) {
+        ESP_LOGE(GEN_ONOFF_SERVER_TAG, "Memory allocation failed");
+        return;
+    }
+    if(xQueueSend(bleMessageQueue, &msg, xBlockTime) != pdPASS) {
+        ESP_LOGE(GEN_ONOFF_SERVER_TAG, "Queue send failed");
+        vPortFree(msg->param);
+        vPortFree(msg);
+        return;
+    }
     cobra_process_t proc = process_message_received;
     cobra_process_info_t proc_info = {
         .process = proc,
