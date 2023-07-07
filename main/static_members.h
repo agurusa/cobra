@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
+
 #include "cobra_roles.h"
 #include "cobra_colors.h"
 #include "state_enum.h"
@@ -19,6 +22,8 @@
 #define USER_HUE 20
 #define USER_SATURATION 20
 
+/*incoming BLE messages to be processed*/
+extern QueueHandle_t bleMessageQueue;
 extern cobra_state_struct_t cobra_state;
 extern bool msg_received;
 extern bool get_msg_received();

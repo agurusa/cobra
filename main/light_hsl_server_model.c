@@ -48,13 +48,13 @@ static esp_ble_mesh_light_hsl_setup_srv_t hsl_setup_server = {
 
 void handle_hsl_set_message(esp_ble_mesh_lighting_server_cb_event_t event, cobra_colors_t color, cobra_bt_message_t msg_rsp)
 {
-    cobra_bt_response_t *msg = calloc(1, sizeof(cobra_bt_response_t));
+    const TickType_t xBlockTime = pdMS_TO_TICKS( 200 );
+    cobra_bt_response_t *msg = pvPortMalloc(sizeof(cobra_bt_response_t)); // passing by reference because cobra_bt_response_t is pretty large
     msg->response = msg_rsp;
-    msg->next = NULL;
     msg->event.hsl_srv = event;
-    msg->param = calloc(1, sizeof(ble_mesh_param_t));
+    msg->param = pvPortMalloc(sizeof(ble_mesh_param_t));
     msg->param->set_val_comms_color = color;
-    push_msg(msg);
+    xQueueSend(bleMessageQueue, &msg, xBlockTime);
     cobra_process_t proc = process_message_received;
     cobra_process_info_t proc_info = {
         .process = proc,

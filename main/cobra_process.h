@@ -72,11 +72,6 @@ typedef union{
 
 typedef struct cobra_bt_response_t{
     cobra_bt_message_t response;
-    struct cobra_bt_response_t * next;
     ble_mesh_event_t event;
     ble_mesh_param_t *param;
 }cobra_bt_response_t;
-
-typedef struct {
-    cobra_bt_response_t * first;
-}cobra_message_queue_t;

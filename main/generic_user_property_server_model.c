@@ -38,11 +38,10 @@ ESP_BLE_MESH_MODEL_PUB_DEFINE(property_serv_pub, 2+3, ROLE_NODE);
 void handle_usr_prop_state_change(esp_ble_mesh_generic_server_cb_event_t event,
                             esp_ble_mesh_generic_server_cb_param_t *param){
     ESP_LOGI(GEN_PROP_SERVER_TAG, "usr prop state change");
-    cobra_bt_response_t *msg = calloc(1, sizeof(cobra_bt_response_t));
-    msg->next = NULL;
+    const TickType_t xBlockTime = pdMS_TO_TICKS( 200 );
+    cobra_bt_response_t *msg = pvPortMalloc(sizeof(cobra_bt_response_t)); // passing by reference because cobra_bt_response_t is pretty large
     msg->event.server = event;
-    msg->param = calloc(1, sizeof(ble_mesh_param_t));
-
+    msg->param = pvPortMalloc(sizeof(ble_mesh_param_t));
     uint16_t property_id = param->value.set.user_property.property_id;
     uint16_t len = param->value.set.user_property.property_value->len;
     uint8_t * data = (uint8_t *)net_buf_simple_pull_mem(param->value.set.user_property.property_value, len);
@@ -57,8 +56,8 @@ void handle_usr_prop_state_change(esp_ble_mesh_generic_server_cb_event_t event,
         }
         else {
             ESP_LOGE(GEN_PROP_SERVER_TAG, "unknown cobra role rcvd: %u", *data);
-            free(msg->param);
-            free(msg);
+            vPortFree(msg->param);
+            vPortFree(msg);
             return;
         }
     }
@@ -66,8 +65,8 @@ void handle_usr_prop_state_change(esp_ble_mesh_generic_server_cb_event_t event,
     else if(property_id == 0x1112) {
         if(len != 3){
             ESP_LOGE(GEN_PROP_SERVER_TAG, "didnt receive a packet of length 3 for property id 0x1112.");
-            free(msg->param);
-            free(msg);
+            vPortFree(msg->param);
+            vPortFree(msg);
             return;
         }
         msg->response = message_usr_addr;
@@ -79,11 +78,11 @@ void handle_usr_prop_state_change(esp_ble_mesh_generic_server_cb_event_t event,
     }
     else {
         ESP_LOGE(GEN_PROP_SERVER_TAG, "unknown user property rcvd. prop id: 0x%04x", property_id);
-        free(msg->param);
-        free(msg);
+        vPortFree(msg->param);
+        vPortFree(msg);
         return;
     }
-    push_msg(msg);
+    xQueueSend(bleMessageQueue, &msg, xBlockTime);
     cobra_process_t proc = process_message_received;
     cobra_process_info_t proc_info = {
         .process = proc,
