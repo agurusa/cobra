@@ -145,11 +145,9 @@ void hsl_to_rgb(uint16_t hue, uint16_t lightness, uint16_t saturation, uint16_t*
     *blue = round((b + m) * 255);
 }
 
-void update_usr_color(uint16_t usr_addr, cobra_colors_t color)
+void update_usr_color(cobra_colors_t color)
 {
-    //TODO: update the specific index associated with the usr_addr. for now, just updating a constant index.
-    update_usr_colors(usr_addr, color);
-
+    update_usr_colors(color);
 }
 
 void led_strip_set_usr_colors(led_strip_handle_t strip) {

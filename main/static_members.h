@@ -21,6 +21,7 @@
 
 extern cobra_state_struct_t cobra_state;
 extern bool msg_received;
+extern bool get_msg_received();
 extern void update_msg_received(bool val);
 
 extern const cobra_colors_t RED;
@@ -28,7 +29,7 @@ extern const cobra_colors_t YELLOW;
 extern bool usr_msgs_received[NUM_LEDS];
 extern uint16_t usr_addrs[NUM_LEDS];
 extern cobra_colors_t usr_colors[NUM_LEDS];
-extern void update_usr_colors(uint16_t usr_addr, cobra_colors_t color);
+extern void update_usr_colors(cobra_colors_t color);
 extern cobra_colors_t get_usr_color(int usr_index);
 extern void update_all_usr_colors(cobra_colors_t color);
 extern void update_usr_msgs_received(uint16_t usr_addr, bool rcvd);
@@ -43,3 +44,4 @@ extern void set_next_state(cobra_state_t next_state);
 extern void set_current_state(cobra_state_t current_state);
 extern void set_cobra_group_role(cobra_role_t role);
 extern cobra_role_t get_cobra_role();
+extern int get_index_for_usr_addr(uint16_t usr_addr);
