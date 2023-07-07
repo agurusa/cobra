@@ -30,8 +30,8 @@ void process_msg()
             case message_acknowledged:
                 ESP_LOGI(BLE_QUEUE, "message acknoweldged received!");
                 update_usr_msgs_received(rsp->param->set_val_comms_color.recv_addr, true);
-                //TODO: some kind of memory corruption is potentially cuasing the lightness value here to be inconsistent. c
-                ESP_LOGE(BLE_QUEUE, "rxn color is: lightness %u, hue %u, saturation %u from 0x%04x", rsp->param->set_val_comms_color.lightness, rsp->param->set_val_comms_color.hue, rsp->param->set_val_comms_color.saturation, rsp->param->set_val_comms_color.recv_addr);
+                ESP_LOGE(BLE_QUEUE, "rxn color is: lightness %u, hue %u, saturation %u from 0x%04x", rsp->param->set_val_comms_color.lightness, rsp->param->set_val_comms_color.hue, rsp->param->set_val_comms_color.saturation, 
+                rsp->param->set_val_comms_color.recv_addr);
                 /*update the LED index of the associated user to the color received*/
                 update_usr_color(rsp->param->set_val_comms_color);
                 update_msg_received(false);

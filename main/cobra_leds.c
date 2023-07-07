@@ -157,6 +157,7 @@ void led_strip_set_usr_colors(led_strip_handle_t strip) {
     for (int i = FIRST_USR_LED_INDEX; i< NUM_LEDS; i++){
         cobra_colors_t color = get_usr_color(i);
         hsl_to_rgb(color.hue, color.lightness, color.saturation, &red, &green, &blue);
+        ESP_LOGE("debug", "index %i, color red %u, green %u, blue: %u", i, red, green, blue);
         led_strip_set_pixel(strip, i, red, green, blue);
     }
 }

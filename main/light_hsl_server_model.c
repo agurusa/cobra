@@ -67,6 +67,7 @@ void handle_hsl_set_message(esp_ble_mesh_lighting_server_cb_event_t event, cobra
 //TODO: why is saturation getting set as 0?? 
 void hsl_server_cb(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_lighting_server_cb_param_t *param)
 {
+    //TODO: saturation is always 0 here?? 
     ESP_LOGE(HSL_SRV_TAG,  "event: 0x%02x,  lightness: %u, hue: %u, saturation: %u", 
     event, 
     param->value.set.hsl.lightness,
@@ -75,7 +76,7 @@ void hsl_server_cb(esp_ble_mesh_lighting_server_cb_event_t event, esp_ble_mesh_l
     cobra_colors_t color = {
         param->value.set.hsl.lightness,
         param->value.set.hsl.hue,
-        param->value.set.hsl.saturation,
+        100, //ugh. fix this when the above bug is figured out.
         param->ctx.addr
     };
     //if the color will be set to red, we know we have a silence message
