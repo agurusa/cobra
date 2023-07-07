@@ -213,7 +213,8 @@ esp_err_t fillBodyLeds(cobra_state_t state, led_strip_handle_t strip)
             led_strip_set_usr_colors(strip);
             break;
         case state_listener_passive:
-            err = led_strip_fill_with_solid(strip,0, 100, 0);
+            err = led_strip_set_pixel(strip, COMMS_LED_INDEX, 0, 100, 0);
+            led_strip_set_usr_colors(strip);
             break;
         case state_listener_active:
             // if (xSemaphore == NULL){
@@ -227,6 +228,7 @@ esp_err_t fillBodyLeds(cobra_state_t state, led_strip_handle_t strip)
             led_struct = led_args;
             xTaskCreate(blink_led, "BLINK_TASK", STACK_SIZE, led_struct, tskIDLE_PRIORITY, &led_blink_handle);
             // xSemaphoreGive( xSemaphore );
+            led_strip_set_usr_colors(strip);
             break;
         default:
             break;

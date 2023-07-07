@@ -42,7 +42,7 @@ void process_msg()
                 break;
             case message_group_owner:
                 // everything that needs to happen here is taken care of in the state_updater.
-                ESP_LOGE("debug", "msg received from group owner using new queue");
+                ESP_LOGE(BLE_QUEUE, "msg received from group owner"); 
                 break;
             case message_location_requested:
                 break;
