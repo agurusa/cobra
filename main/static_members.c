@@ -19,6 +19,10 @@ cobra_colors_t user_color = {
     .hue = USER_HUE,
     .saturation = USER_SATURATION,
 };
+const cobra_addr_t startup_addr = {
+    .min_addr = MAX_USR_ADDR,
+    .max_addr = 0
+};
 
 const cobra_role_t startup_role = role_listener;
 const cobra_colors_t startup_color = {
@@ -32,7 +36,8 @@ cobra_state_struct_t cobra_state  = {
     .next_state = state_startup,
     .group_role = startup_role,
     .current_mode = mode_music,
-    .user_color = startup_color
+    .user_color = startup_color,
+    .usr_addr = startup_addr
 };
 
 bool get_msg_received(){
@@ -125,7 +130,7 @@ void update_usr_addrs(uint16_t usr_addr, int index){
     ESP_LOGI(STATIC_MEM_TAG, "Updating usr addr at %i to 0x%04x", index, usr_addrs[index]);
 }
 
-uint16_t get_usr_addr(int index){
+uint16_t get_usr_addr_by_index(int index){
     return usr_addrs[index];
 }
 
@@ -173,4 +178,17 @@ int get_num_listeners_in_group(){
         num++;
     }
     return num;
+}
+
+void set_usr_addr(uint16_t usr_addr){
+    if(cobra_state.usr_addr.min_addr > usr_addr){
+        cobra_state.usr_addr.min_addr = usr_addr;
+    }
+    if(cobra_state.usr_addr.max_addr < usr_addr){
+        cobra_state.usr_addr.max_addr = usr_addr;
+    }
+}
+
+cobra_addr_t get_usr_addr(){
+    return cobra_state.usr_addr;
 }

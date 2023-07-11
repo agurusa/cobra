@@ -65,6 +65,8 @@ void config_server_callback(esp_ble_mesh_cfg_server_cb_event_t event,
             if (param->value.state_change.mod_app_bind.company_id == NOT_VENDOR_MODEL){ 
                 config_info.app_idx = param->value.state_change.mod_app_bind.app_idx;
                 ESP_LOGE(SERVER_TAG, "saving app_idx: 0x%04x",param->value.state_change.mod_app_bind.app_idx );
+                /* set the node's address. Note that this will be the lowest number received because all the node's element's addresses will be higher.*/
+                set_usr_addr(param->value.state_change.mod_app_bind.element_addr);
                 update_nvs_data(config_info); /* Store proper mesh example info */
             }
             break;

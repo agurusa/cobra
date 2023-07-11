@@ -24,10 +24,17 @@ typedef enum {
   num_of_states
 }cobra_state_t;
 
+typedef struct cobra_addr_t{
+  uint16_t min_addr;
+  uint16_t max_addr;
+
+}cobra_addr_t;
+
 typedef struct {
   cobra_mode_t current_mode;
   cobra_state_t current_state;
   cobra_state_t next_state;
   cobra_role_t group_role;
   cobra_colors_t user_color;
+  cobra_addr_t usr_addr;
 }cobra_state_struct_t;

@@ -39,7 +39,7 @@ extern void update_usr_msgs_received(uint16_t usr_addr, bool rcvd);
 extern void update_all_usr_msgs_received(bool rcvd);
 extern bool all_msgs_received();
 extern void update_usr_addrs(uint16_t usr_addr, int index);
-extern uint16_t get_usr_addr(int index);
+extern uint16_t get_usr_addr_by_index(int index);
 extern cobra_state_struct_t get_cobra_state();
 extern void set_cobra_state_struct(cobra_state_struct_t state);
 extern void set_current_mode(cobra_mode_t mode);
@@ -49,4 +49,6 @@ extern void set_cobra_group_role(cobra_role_t role);
 extern cobra_role_t get_cobra_role();
 extern int get_index_for_usr_addr(uint16_t usr_addr);
 int get_num_listeners_in_group();
+extern void set_usr_addr(uint16_t usr_addr);
+extern cobra_addr_t get_usr_addr();
 

@@ -29,20 +29,29 @@ void process_msg()
         {
             case message_acknowledged:
                 ESP_LOGI(BLE_QUEUE, "message acknoweldged received!");
-                update_usr_msgs_received(rsp->param->set_val_comms_color.recv_addr, true);
+                uint16_t recv_addr = rsp->param->set_val_comms_color.recv_addr;
+                update_usr_msgs_received(recv_addr, true);
                 ESP_LOGE(BLE_QUEUE, "rxn color is: lightness %u, hue %u, saturation %u from 0x%04x", rsp->param->set_val_comms_color.lightness, rsp->param->set_val_comms_color.hue, rsp->param->set_val_comms_color.saturation, 
                 rsp->param->set_val_comms_color.recv_addr);
                 /*update the LED index of the associated user to the color received*/
                 update_usr_color(rsp->param->set_val_comms_color);
-                update_msg_received(false);
+                /*check where the msg received came from. if it is from a user that is *not* the current bracelet, then the listener's bracelet should still be in the active state (msg_received needs to remain true).
+                if the user is a group owner, this will not matter, as the passive state is only achieved after receiving msgs from *all* users.
+                */
+                cobra_addr_t usr_addr = get_usr_addr();
+                ESP_LOGE("debug", "USR ADDR: %u, %u", usr_addr.min_addr, usr_addr.max_addr);
+                if (usr_addr.min_addr <= recv_addr && usr_addr.max_addr >= recv_addr ){
+                    update_msg_received(false);
+                }
                 break;
             case message_silenced:
                 break;
             case message_snoozed:
                 break;
             case message_group_owner:
-                // everything that needs to happen here is taken care of in the state_updater.
                 ESP_LOGE(BLE_QUEUE, "msg received from group owner"); 
+                cobra_colors_t off = {0,0,0};
+                update_all_usr_colors(off);
                 break;
             case message_location_requested:
                 break;
@@ -59,7 +68,7 @@ void process_msg()
             case message_usr_addr:
                 uint16_t addr = rsp->param->set_val_cobra_usr.recv_addr;
                 int index = rsp->param->set_val_cobra_usr.recv_index;
-                if (get_usr_addr(index)!= addr){
+                if (get_usr_addr_by_index(index)!= addr){
                     update_usr_addrs(addr, index);
                 }
                 update_msg_received(false);
