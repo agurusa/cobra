@@ -19,6 +19,10 @@ cobra_colors_t user_color = {
     .hue = USER_HUE,
     .saturation = USER_SATURATION,
 };
+const cobra_addr_t startup_addr = {
+    .min_addr = MAX_USR_ADDR,
+    .max_addr = 0
+};
 
 const cobra_role_t startup_role = role_listener;
 const cobra_colors_t startup_color = {
@@ -32,7 +36,10 @@ cobra_state_struct_t cobra_state  = {
     .next_state = state_startup,
     .group_role = startup_role,
     .current_mode = mode_music,
-    .user_color = startup_color
+    .user_color = startup_color,
+    .usr_addr = startup_addr,
+    .responded = true,
+    .usr_led_changed = false
 };
 
 bool get_msg_received(){
@@ -59,9 +66,18 @@ const cobra_colors_t YELLOW = {
 
 int get_index_for_usr_addr(uint16_t usr_addr)
 {
-    for(int i = FIRST_USR_LED_INDEX; i < FIRST_USR_LED_INDEX+NUM_LISTENERS_IN_GROUP; i++){
-        if(usr_addrs[i] == usr_addr){
-            return i;
+    //return the index associated with the received address. Note that is a range, because the primary unicast address is only the address of the Node. Each node has a series of elements, which have their own addresses.
+    int last_index = get_num_listeners_in_group();
+    for(int i = 0; i < last_index; i++){
+        if(i == last_index - 1){
+            if (usr_addrs[i]<= usr_addr && MAX_USR_ADDR > usr_addr){
+                return i;
+            }
+        }
+        else{
+            if (usr_addrs[i] <= usr_addr && usr_addrs[i+1] > usr_addr){
+                return i;
+            }
         }
     }
     ESP_LOGE(STATIC_MEM_TAG, "Unknown usr address: 0x%04x", usr_addr);
@@ -73,6 +89,7 @@ void update_usr_colors(cobra_colors_t color) {
     if (usr_addr_index == NUM_LEDS){ //usr not found
         return;
     }
+    usr_addr_index+= FIRST_USR_LED_INDEX;
     usr_colors[usr_addr_index] = color;
 }
 
@@ -81,7 +98,7 @@ cobra_colors_t get_usr_color(int usr_index) {
 }
 
 void update_all_usr_colors(cobra_colors_t color) {
-    for(int i = FIRST_USR_LED_INDEX; i < FIRST_USR_LED_INDEX+NUM_LISTENERS_IN_GROUP; i++){
+    for(int i = FIRST_USR_LED_INDEX; i < FIRST_USR_LED_INDEX+get_num_listeners_in_group(); i++){
         usr_colors[i] = color;
     }
 }
@@ -91,17 +108,18 @@ void update_usr_msgs_received(uint16_t usr_addr, bool rcvd){
     if (usr_addr_index == NUM_LEDS){ //usr not found
         return;
     }
+    usr_addr_index+=FIRST_USR_LED_INDEX;
     usr_msgs_received[usr_addr_index] = rcvd;
 }
 
 void update_all_usr_msgs_received(bool rcvd){
-    for(int i = FIRST_USR_LED_INDEX; i < FIRST_USR_LED_INDEX+NUM_LISTENERS_IN_GROUP; i++){
+    for(int i = FIRST_USR_LED_INDEX; i < FIRST_USR_LED_INDEX+get_num_listeners_in_group(); i++){
         usr_msgs_received[i] = rcvd;
     }
 }
 
 bool all_msgs_received(){
-    for(int i = FIRST_USR_LED_INDEX; i < FIRST_USR_LED_INDEX+NUM_LISTENERS_IN_GROUP; i++){
+    for(int i = FIRST_USR_LED_INDEX; i < FIRST_USR_LED_INDEX+get_num_listeners_in_group(); i++){
         if(!usr_msgs_received[i]){
             return false;
         }
@@ -114,7 +132,7 @@ void update_usr_addrs(uint16_t usr_addr, int index){
     ESP_LOGI(STATIC_MEM_TAG, "Updating usr addr at %i to 0x%04x", index, usr_addrs[index]);
 }
 
-uint16_t get_usr_addr(int index){
+uint16_t get_usr_addr_by_index(int index){
     return usr_addrs[index];
 }
 
@@ -150,4 +168,45 @@ void set_cobra_group_role(cobra_role_t role)
 extern cobra_role_t get_cobra_role()
 {
     return cobra_state.group_role;
+}
+
+int get_num_listeners_in_group(){
+    int num = 0;
+    for(int i = 0; i < NUM_LEDS; i++){
+        /*TODO: clear all addresses so we can deal with users that have been removed from the group*/
+        if(!usr_addrs[i]){
+            return num;
+        }
+        num++;
+    }
+    return num;
+}
+
+void set_usr_addr(uint16_t usr_addr){
+    if(cobra_state.usr_addr.min_addr > usr_addr){
+        cobra_state.usr_addr.min_addr = usr_addr;
+    }
+    if(cobra_state.usr_addr.max_addr < usr_addr){
+        cobra_state.usr_addr.max_addr = usr_addr;
+    }
+}
+
+cobra_addr_t get_usr_addr(){
+    return cobra_state.usr_addr;
+}
+
+bool get_responded(){
+    return cobra_state.responded;
+}
+
+void set_responded(bool responded){
+    cobra_state.responded = responded;
+}
+
+void set_usr_led_changed(bool changed){
+    cobra_state.usr_led_changed = changed;
+}
+
+bool get_usr_led_changed(){
+    return cobra_state.usr_led_changed;
 }

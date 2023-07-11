@@ -155,7 +155,7 @@ void app_main(void)
     /* Start a background task to respond to a state change */
     static uint8_t suParameterToPass;
     TaskHandle_t state_update_handle = NULL;
-    xTaskCreate(respond_to_state_change, "STATE_CHANGE_TASK", STACK_SIZE, &suParameterToPass, tskIDLE_PRIORITY, &state_update_handle);
+    xTaskCreate(respond_to_state_change, "STATE_CHANGE_TASK", STACK_SIZE, &suParameterToPass, 1, &state_update_handle);
 
     /* Start a background task that processes nodes from the queue */
     static uint8_t ppParameterToPass;

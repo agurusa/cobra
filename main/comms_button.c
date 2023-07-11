@@ -47,6 +47,7 @@ void press_comms_button_short()
             send_hsl_set_message(cobra_state.user_color);
             /*update state to passive*/
             update_msg_received(false);
+            set_responded(true);
             break;
         default:
             break;

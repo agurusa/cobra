@@ -24,25 +24,30 @@ void process_msg()
     const TickType_t xBlockTime = pdMS_TO_TICKS( 200 );
     if(xQueueReceive(bleMessageQueue, &rsp, xBlockTime)){
         /*changes to comms mode*/
-        update_msg_received(true); /*in order for this to work on the listening group's bracelets, the hsl server node cannot be subscribed to the festival group (otherwise this will log as a received message)*/
+        update_msg_received(true); 
         switch(rsp->response)
         {
             case message_acknowledged:
                 ESP_LOGI(BLE_QUEUE, "message acknoweldged received!");
-                update_usr_msgs_received(rsp->param->set_val_comms_color.recv_addr, true);
-                //TODO: some kind of memory corruption is potentially cuasing the lightness value here to be inconsistent. c
-                ESP_LOGE(BLE_QUEUE, "rxn color is: lightness %u, hue %u, saturation %u from 0x%04x", rsp->param->set_val_comms_color.lightness, rsp->param->set_val_comms_color.hue, rsp->param->set_val_comms_color.saturation, rsp->param->set_val_comms_color.recv_addr);
+                uint16_t recv_addr = rsp->param->set_val_comms_color.recv_addr;
+                update_usr_msgs_received(recv_addr, true);
+                ESP_LOGE(BLE_QUEUE, "rxn color is: lightness %u, hue %u, saturation %u from 0x%04x", rsp->param->set_val_comms_color.lightness, rsp->param->set_val_comms_color.hue, rsp->param->set_val_comms_color.saturation, 
+                rsp->param->set_val_comms_color.recv_addr);
                 /*update the LED index of the associated user to the color received*/
                 update_usr_color(rsp->param->set_val_comms_color);
-                update_msg_received(false);
+                /*refresh the led strip.*/
+                set_usr_led_changed(true);
+                update_msg_received(false); 
                 break;
             case message_silenced:
                 break;
             case message_snoozed:
                 break;
             case message_group_owner:
-                // everything that needs to happen here is taken care of in the state_updater.
-                ESP_LOGE("debug", "msg received from group owner using new queue");
+                ESP_LOGE(BLE_QUEUE, "msg received from group owner"); 
+                cobra_colors_t off = {0,0,0};
+                set_responded(false);
+                update_all_usr_colors(off);
                 break;
             case message_location_requested:
                 break;
@@ -59,7 +64,7 @@ void process_msg()
             case message_usr_addr:
                 uint16_t addr = rsp->param->set_val_cobra_usr.recv_addr;
                 int index = rsp->param->set_val_cobra_usr.recv_index;
-                if (get_usr_addr(index)!= addr){
+                if (get_usr_addr_by_index(index)!= addr){
                     update_usr_addrs(addr, index);
                 }
                 update_msg_received(false);
