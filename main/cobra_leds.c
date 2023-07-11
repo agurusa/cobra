@@ -17,9 +17,7 @@
 #include "state_enum.h"
 
 /* For when we start a background task that blinks the LED */
-// SemaphoreHandle_t xSemaphore = NULL;
 static int led_on = 0;
-static TaskHandle_t led_blink_handle = NULL;
 
 const char * LED_TAG = "LED";
 
@@ -28,9 +26,6 @@ static led_strip_handle_t led_strip;
 const int LED_GPIO = GPIO_NUM_5;
 const int COMMS_LED_INDEX = 1;
 const int STARTUP_LED_INDEX = 0;
-
-led_struct_t *led_struct = NULL; /*for blinking LEDs*/
-
 
 
 led_strip_config_t strip_config = {
@@ -157,7 +152,6 @@ void led_strip_set_usr_colors(led_strip_handle_t strip) {
     for (int i = FIRST_USR_LED_INDEX; i< NUM_LEDS; i++){
         cobra_colors_t color = get_usr_color(i);
         hsl_to_rgb(color.hue, color.lightness, color.saturation, &red, &green, &blue);
-        ESP_LOGE("debug", "index %i, color red %u, green %u, blue: %u", i, red, green, blue);
         led_strip_set_pixel(strip, i, red, green, blue);
     }
 }
@@ -174,20 +168,6 @@ esp_err_t led_strip_fill_with_solid(led_strip_handle_t strip, uint32_t red, uint
 esp_err_t fillBodyLeds(cobra_state_t state, led_strip_handle_t strip)
 // fill body LEDs with the correct color combo
 {   
-    
-    if(state!=state_listener_active && state!=state_timer)
-    {
-        // xSemaphoreTake(xSemaphore, portMAX_DELAY);
-        // Use the handle to delete the task.
-        if( led_blink_handle != NULL )
-        {
-            // vSemaphoreDelete(xSemaphore);
-            vTaskDelete( led_blink_handle );
-            led_blink_handle = NULL;
-            free(led_struct);
-        }
-    }
-
     esp_err_t err = ESP_OK;
     switch (state) {
         case state_music:
@@ -218,17 +198,7 @@ esp_err_t fillBodyLeds(cobra_state_t state, led_strip_handle_t strip)
             led_strip_set_usr_colors(strip);
             break;
         case state_listener_active:
-            // if (xSemaphore == NULL){
-            //     xSemaphore = xSemaphoreCreateMutex();
-            // }
-            led_struct_t *led_args = calloc(1, sizeof(led_struct_t));
-            led_args->index = COMMS_LED_INDEX;
-            led_args->red = 100;
-            led_args->green = 0;
-            led_args->blue = 0;
-            led_struct = led_args;
-            xTaskCreate(blink_led, "BLINK_TASK", STACK_SIZE, led_struct, tskIDLE_PRIORITY, &led_blink_handle);
-            // xSemaphoreGive( xSemaphore );
+            led_strip_set_pixel(strip, COMMS_LED_INDEX, 100, 0, 0);
             led_strip_set_usr_colors(strip);
             break;
         default:

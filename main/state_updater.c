@@ -18,7 +18,7 @@ void update_state()
     cobra_state_t next_state = current_state;
     bool _msg_rcvd = get_msg_received();
     bool responded = get_responded();
-    cobra_mode_t next_mode = _msg_rcvd? mode_comms : current_mode; 
+    cobra_mode_t next_mode = (_msg_rcvd || !responded)? mode_comms : current_mode; 
     set_current_mode(next_mode);
     switch(cobra_state.current_mode)
     {
@@ -37,8 +37,7 @@ void update_state()
             }
             else
             {
-                /*if we don't need to respond to any messages, we should be in the passive state*/
-                /*if there is a message to respond to, then we should be in the active state*/
+                /*if there is an incoming message OR we haven't responded, we should be in the active state. Otherwise, we're in the passive state.*/
                 next_state = (_msg_rcvd || !responded) ? state_listener_active : state_listener_passive;
             }
             break;
@@ -98,6 +97,10 @@ void respond_to_state_change(void * args)
             set_current_state(next_state);
             ESP_LOGE(STATE_TAG, "current state now: %i", get_cobra_state().current_state);
 
+        }
+        else if (state.usr_led_changed){
+            fillBodyLeds(next_state, led_strip);
+            set_usr_led_changed(false);
         }
         vTaskDelay(1);
     }

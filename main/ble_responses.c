@@ -35,6 +35,8 @@ void process_msg()
                 rsp->param->set_val_comms_color.recv_addr);
                 /*update the LED index of the associated user to the color received*/
                 update_usr_color(rsp->param->set_val_comms_color);
+                /*refresh the led strip.*/
+                set_usr_led_changed(true);
                 update_msg_received(false); 
                 break;
             case message_silenced:

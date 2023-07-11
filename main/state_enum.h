@@ -40,4 +40,5 @@ typedef struct {
   cobra_colors_t user_color;
   cobra_addr_t usr_addr;
   bool responded;
+  bool usr_led_changed;
 }cobra_state_struct_t;

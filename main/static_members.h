@@ -53,4 +53,6 @@ extern void set_usr_addr(uint16_t usr_addr);
 extern cobra_addr_t get_usr_addr();
 extern bool get_responded();
 extern void set_responded(bool responded);
+extern void set_usr_led_changed(bool changed);
+extern bool get_usr_led_changed();
 
