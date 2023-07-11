@@ -24,7 +24,7 @@ void process_msg()
     const TickType_t xBlockTime = pdMS_TO_TICKS( 200 );
     if(xQueueReceive(bleMessageQueue, &rsp, xBlockTime)){
         /*changes to comms mode*/
-        update_msg_received(true); /*in order for this to work on the listening group's bracelets, the hsl server node cannot be subscribed to the festival group (otherwise this will log as a received message)*/
+        update_msg_received(true); 
         switch(rsp->response)
         {
             case message_acknowledged:
@@ -35,14 +35,7 @@ void process_msg()
                 rsp->param->set_val_comms_color.recv_addr);
                 /*update the LED index of the associated user to the color received*/
                 update_usr_color(rsp->param->set_val_comms_color);
-                /*check where the msg received came from. if it is from a user that is *not* the current bracelet, then the listener's bracelet should still be in the active state (msg_received needs to remain true).
-                if the user is a group owner, this will not matter, as the passive state is only achieved after receiving msgs from *all* users.
-                */
-                cobra_addr_t usr_addr = get_usr_addr();
-                ESP_LOGE("debug", "USR ADDR: %u, %u", usr_addr.min_addr, usr_addr.max_addr);
-                if (usr_addr.min_addr <= recv_addr && usr_addr.max_addr >= recv_addr ){
-                    update_msg_received(false);
-                }
+                update_msg_received(false); 
                 break;
             case message_silenced:
                 break;
@@ -51,6 +44,7 @@ void process_msg()
             case message_group_owner:
                 ESP_LOGE(BLE_QUEUE, "msg received from group owner"); 
                 cobra_colors_t off = {0,0,0};
+                set_responded(false);
                 update_all_usr_colors(off);
                 break;
             case message_location_requested:

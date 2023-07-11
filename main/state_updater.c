@@ -17,6 +17,7 @@ void update_state()
     cobra_mode_t current_mode = cobra_state.current_mode;
     cobra_state_t next_state = current_state;
     bool _msg_rcvd = get_msg_received();
+    bool responded = get_responded();
     cobra_mode_t next_mode = _msg_rcvd? mode_comms : current_mode; 
     set_current_mode(next_mode);
     switch(cobra_state.current_mode)
@@ -38,7 +39,7 @@ void update_state()
             {
                 /*if we don't need to respond to any messages, we should be in the passive state*/
                 /*if there is a message to respond to, then we should be in the active state*/
-                next_state = (_msg_rcvd) ? state_listener_active : state_listener_passive;
+                next_state = (_msg_rcvd || !responded) ? state_listener_active : state_listener_passive;
             }
             break;
         case mode_locator:

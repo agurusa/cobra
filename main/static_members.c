@@ -37,7 +37,8 @@ cobra_state_struct_t cobra_state  = {
     .group_role = startup_role,
     .current_mode = mode_music,
     .user_color = startup_color,
-    .usr_addr = startup_addr
+    .usr_addr = startup_addr,
+    .responded = true
 };
 
 bool get_msg_received(){
@@ -191,4 +192,12 @@ void set_usr_addr(uint16_t usr_addr){
 
 cobra_addr_t get_usr_addr(){
     return cobra_state.usr_addr;
+}
+
+bool get_responded(){
+    return cobra_state.responded;
+}
+
+void set_responded(bool responded){
+    cobra_state.responded = responded;
 }

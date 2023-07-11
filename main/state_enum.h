@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 #include "cobra_colors.h"
 #include "cobra_roles.h"
 
@@ -37,4 +39,5 @@ typedef struct {
   cobra_role_t group_role;
   cobra_colors_t user_color;
   cobra_addr_t usr_addr;
+  bool responded;
 }cobra_state_struct_t;

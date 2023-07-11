@@ -51,4 +51,6 @@ extern int get_index_for_usr_addr(uint16_t usr_addr);
 int get_num_listeners_in_group();
 extern void set_usr_addr(uint16_t usr_addr);
 extern cobra_addr_t get_usr_addr();
+extern bool get_responded();
+extern void set_responded(bool responded);
 
