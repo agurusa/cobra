@@ -63,8 +63,8 @@ void handle_usr_prop_state_change(esp_ble_mesh_generic_server_cb_event_t event,
     }
     //this is a message about the members of the group
     else if(property_id == 0x1112) {
-        if(len != 3){
-            ESP_LOGE(GEN_PROP_SERVER_TAG, "didnt receive a packet of length 3 for property id 0x1112.");
+        if(len != 4){
+            ESP_LOGE(GEN_PROP_SERVER_TAG, "didnt receive a packet of length 4 for property id 0x1112.");
             vPortFree(msg->param);
             vPortFree(msg);
             return;
@@ -72,7 +72,8 @@ void handle_usr_prop_state_change(esp_ble_mesh_generic_server_cb_event_t event,
         msg->response = message_usr_addr;
         cobra_usr_t usr = {
             ((uint16_t)data[0] << 8) | data[1],
-            data[2]
+            data[2],
+            data[3]
         };
         msg->param->set_val_cobra_usr = usr;
     }

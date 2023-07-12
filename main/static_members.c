@@ -162,6 +162,7 @@ extern void set_current_state(cobra_state_t current_state)
 
 void set_cobra_group_role(cobra_role_t role)
 {
+    ESP_LOGI(STATIC_MEM_TAG, "NOW CHANGING ROLE TO: %u", role);
     cobra_state.group_role = role;
 }
 
