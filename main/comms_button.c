@@ -36,8 +36,8 @@ void press_comms_button_short()
             /*generic_onoff_client model set tx*/
             send_gen_onoff_set();
             cobra_colors_t off = {0,0,0};
-            update_all_usr_colors(off);
-            update_all_usr_msgs_received(false);
+            update_all_listener_colors(off);
+            update_all_listener_msgs_received(false);
             break;
         case state_listener_active:
             /*generic_onoff_server model set rx event would have put us in this state*/

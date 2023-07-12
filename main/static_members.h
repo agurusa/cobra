@@ -25,6 +25,7 @@
 extern QueueHandle_t bleMessageQueue;
 extern cobra_state_struct_t cobra_state;
 extern bool msg_received;
+extern int group_owner_index;
 extern bool get_msg_received();
 extern void update_msg_received(bool val);
 extern const cobra_colors_t RED;
@@ -34,9 +35,9 @@ extern uint16_t usr_addrs[NUM_LEDS];
 extern cobra_colors_t usr_colors[NUM_LEDS];
 extern void update_usr_colors(cobra_colors_t color);
 extern cobra_colors_t get_usr_color(int usr_index);
-extern void update_all_usr_colors(cobra_colors_t color);
+extern void update_all_listener_colors(cobra_colors_t color);
 extern void update_usr_msgs_received(uint16_t usr_addr, bool rcvd);
-extern void update_all_usr_msgs_received(bool rcvd);
+extern void update_all_listener_msgs_received(bool rcvd);
 extern bool all_msgs_received();
 extern void update_usr_addrs(uint16_t usr_addr, int index);
 extern uint16_t get_usr_addr_by_index(int index);
@@ -55,4 +56,6 @@ extern bool get_responded();
 extern void set_responded(bool responded);
 extern void set_usr_led_changed(bool changed);
 extern bool get_usr_led_changed();
+extern void set_group_owner_index(int index);
+extern int get_group_owner_index();
 

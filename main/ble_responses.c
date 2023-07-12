@@ -47,7 +47,7 @@ void process_msg()
                 ESP_LOGE(BLE_QUEUE, "msg received from group owner"); 
                 cobra_colors_t off = {0,0,0};
                 set_responded(false);
-                update_all_usr_colors(off);
+                update_all_listener_colors(off);
                 break;
             case message_location_requested:
                 break;
@@ -71,6 +71,9 @@ void process_msg()
                 cobra_addr_t usr_addr = get_usr_addr();
                 if(addr >= usr_addr.min_addr && addr <= usr_addr.max_addr){
                     set_cobra_group_role(usr_role);
+                }
+                if(usr_role == role_owner){
+                    set_group_owner_index(index);
                 }
                 update_msg_received(false);
                 break;
