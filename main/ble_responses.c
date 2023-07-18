@@ -46,7 +46,10 @@ void process_msg()
             case message_group_owner:
                 ESP_LOGE(BLE_QUEUE, "msg received from group owner"); 
                 cobra_colors_t off = {0,0,0};
-                set_responded(false);
+                cobra_role_t role = get_cobra_role();
+                if (role!= role_owner){
+                    set_responded(false);
+                }
                 update_all_listener_colors(off);
                 break;
             case message_location_requested:
