@@ -8,6 +8,10 @@
 
 /* Updates the state machine */
 
+//hack to get the rainbow animation working. changes colors every 10 ms
+static int counter = 0;
+static int max_counter = 10;
+
 const char * STATE_TAG = "STATE";
 
 void update_state()
@@ -97,6 +101,13 @@ void respond_to_state_change(void * args)
             set_current_state(next_state);
             ESP_LOGE(STATE_TAG, "current state now: %i", get_cobra_state().current_state);
 
+        }
+        else if (current_state == state_music){ //hack to make sure the led strip is flushed every 10 ms to show animated lights
+            if(counter == max_counter){
+                fillBodyLeds(current_state, led_strip);
+                counter = 0;
+            }
+            counter++;
         }
         else if (state.usr_led_changed){
             fillBodyLeds(next_state, led_strip);
