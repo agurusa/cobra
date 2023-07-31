@@ -23,6 +23,8 @@ static uint32_t s_red = 0;
 static uint32_t s_green = 0;
 static uint32_t s_blue = 0;
 static uint16_t s_hue = 0;
+static uint16_t s_val = 10;
+static bool fade_in = true;
 
 const char *LED_TAG = "LED";
 
@@ -204,8 +206,34 @@ void led_strip_hsv2rgb(uint32_t h, uint32_t s, uint32_t v, uint32_t *r, uint32_t
     }
 }
 
-esp_err_t led_strip_rainbow(led_strip_handle_t strip)
+esp_err_t led_strip_pulse(led_strip_handle_t strip)
 {
+    esp_err_t err = ESP_OK;
+    if (s_val >= 100){
+        fade_in = false;
+        start_rgb-=60;
+    }
+    else if(s_val <= 0){
+        fade_in = true;
+        start_rgb+=60;
+    }
+    if (fade_in){
+        s_val+=30;
+    }
+    else{
+        s_val-=20;
+    }
+    for (int j = 0; j < NUM_LEDS; j += 1)
+    {
+        // Build RGB values
+        led_strip_hsv2rgb(start_rgb, 100, s_val, &s_red, &s_green, &s_blue);
+        // Write RGB values to strip driver
+        err = led_strip_set_pixel(strip, j, s_red, s_green, s_blue);
+    }
+    return err;
+}
+
+esp_err_t led_strip_rainbow(led_strip_handle_t strip){
     esp_err_t err = ESP_OK;
     for (int j = 0; j < NUM_LEDS; j += 1)
     {
@@ -252,7 +280,7 @@ esp_err_t fillBodyLeds(cobra_state_t state, led_strip_handle_t strip)
         err = led_strip_rainbow(strip);
         break;
     case state_timer:
-        err = led_strip_fill_with_solid(strip, state * 10, state * 10, state * 20);
+        err = led_strip_pulse(strip);
         break;
     case state_sync:
         err = led_strip_fill_with_solid(strip, state * 10, state * 10, state * 20);

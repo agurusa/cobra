@@ -102,7 +102,7 @@ void respond_to_state_change(void * args)
             ESP_LOGE(STATE_TAG, "current state now: %i", get_cobra_state().current_state);
 
         }
-        else if (current_state == state_music){ //hack to make sure the led strip is flushed every 10 ms to show animated lights
+        else if (current_state == state_music || current_state == state_timer){ //hack to make sure the led strip is flushed every 10 ms to show animated lights
             if(counter == max_counter){
                 fillBodyLeds(current_state, led_strip);
                 counter = 0;
