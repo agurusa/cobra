@@ -48,13 +48,14 @@ typedef enum {
     message_snoozed,
     message_group_owner,
     message_location_requested,
-    message_role_changed,
+    message_role_changed, //deprecated
     message_usr_addr,
 }cobra_bt_message_t;
 
 typedef struct cobra_usr_t{
     uint16_t recv_addr;
     int recv_index;
+    int group_role;
 }cobra_usr_t;
 
 typedef union {

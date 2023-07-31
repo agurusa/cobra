@@ -13,6 +13,7 @@ cobra_colors_t usr_colors[NUM_LEDS] = {0}; //TODO: cobra_colors_t also contains 
 uint16_t usr_addrs[NUM_LEDS] = {0};
 bool usr_msgs_received[NUM_LEDS] = {true, true, true, true, true, true, true, true, true, true};
 const char * STATIC_MEM_TAG = "EXTERN";
+int group_owner_index = 0;
 
 cobra_colors_t user_color = {
     .lightness = USER_LIGHTNESS,
@@ -97,9 +98,12 @@ cobra_colors_t get_usr_color(int usr_index) {
     return usr_colors[usr_index];
 }
 
-void update_all_usr_colors(cobra_colors_t color) {
+void update_all_listener_colors(cobra_colors_t color) {
     for(int i = FIRST_USR_LED_INDEX; i < FIRST_USR_LED_INDEX+get_num_listeners_in_group(); i++){
-        usr_colors[i] = color;
+        if(i!= group_owner_index+FIRST_USR_LED_INDEX){
+            usr_colors[i] = color;
+            
+        }
     }
 }
 
@@ -112,9 +116,11 @@ void update_usr_msgs_received(uint16_t usr_addr, bool rcvd){
     usr_msgs_received[usr_addr_index] = rcvd;
 }
 
-void update_all_usr_msgs_received(bool rcvd){
+void update_all_listener_msgs_received(bool rcvd){
     for(int i = FIRST_USR_LED_INDEX; i < FIRST_USR_LED_INDEX+get_num_listeners_in_group(); i++){
-        usr_msgs_received[i] = rcvd;
+        if(i!= group_owner_index+FIRST_USR_LED_INDEX){
+            usr_msgs_received[i] = rcvd;
+        }
     }
 }
 
@@ -162,6 +168,7 @@ extern void set_current_state(cobra_state_t current_state)
 
 void set_cobra_group_role(cobra_role_t role)
 {
+    ESP_LOGI(STATIC_MEM_TAG, "NOW CHANGING ROLE TO: %u", role);
     cobra_state.group_role = role;
 }
 
@@ -209,4 +216,11 @@ void set_usr_led_changed(bool changed){
 
 bool get_usr_led_changed(){
     return cobra_state.usr_led_changed;
+}
+
+void set_group_owner_index(int index){
+    group_owner_index = index;
+}
+int get_group_owner_index(){
+    return group_owner_index;
 }

@@ -46,8 +46,11 @@ void process_msg()
             case message_group_owner:
                 ESP_LOGE(BLE_QUEUE, "msg received from group owner"); 
                 cobra_colors_t off = {0,0,0};
-                set_responded(false);
-                update_all_usr_colors(off);
+                cobra_role_t role = get_cobra_role();
+                if (role!= role_owner){
+                    set_responded(false);
+                }
+                update_all_listener_colors(off);
                 break;
             case message_location_requested:
                 break;
@@ -56,7 +59,6 @@ void process_msg()
                 cobra_role_t current_role = get_cobra_role();
                 if (rsp->param->set_val_usr_role != current_role){
                     set_cobra_group_role(rsp->param->set_val_usr_role);
-                    ESP_LOGI(BLE_QUEUE, "NOW CHANGING ROLE TO: %u", get_cobra_role());
 
                 }
                 update_msg_received(false);
@@ -64,8 +66,17 @@ void process_msg()
             case message_usr_addr:
                 uint16_t addr = rsp->param->set_val_cobra_usr.recv_addr;
                 int index = rsp->param->set_val_cobra_usr.recv_index;
+                int usr_role = rsp->param->set_val_cobra_usr.group_role;
                 if (get_usr_addr_by_index(index)!= addr){
                     update_usr_addrs(addr, index);
+                }
+                /*if receiving info about this bracelet, update the cobra state info*/
+                cobra_addr_t usr_addr = get_usr_addr();
+                if(addr >= usr_addr.min_addr && addr <= usr_addr.max_addr){
+                    set_cobra_group_role(usr_role);
+                }
+                if(usr_role == role_owner){
+                    set_group_owner_index(index);
                 }
                 update_msg_received(false);
                 break;
